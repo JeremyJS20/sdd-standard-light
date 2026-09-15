@@ -199,6 +199,34 @@ if [ -z "$PROJECT" ]; then
   exit 1
 fi
 
+# --- Download core/ and adapters/ from repo if not present locally ---
+SDD_REPO="https://github.com/JeremyJS20/sdd-standard-light.git"
+NEEDS_DOWNLOAD=false
+
+if [ ! -d "$SCRIPT_DIR/core" ] || [ ! -d "$SCRIPT_DIR/adapters" ]; then
+  NEEDS_DOWNLOAD=true
+fi
+
+if [ "$NEEDS_DOWNLOAD" = true ]; then
+  echo "Downloading SDD Standard from repo..."
+  TMP_DOWNLOAD=$(mktemp -d 2>/dev/null || echo "/tmp/sdd-download-$$")
+  git clone --depth 1 "$SDD_REPO" "$TMP_DOWNLOAD" 2>&1 | tail -1
+  if [ ! -d "$TMP_DOWNLOAD/core" ]; then
+    echo "ERROR: Could not download SDD Standard from $SDD_REPO"
+    rm -rf "$TMP_DOWNLOAD"
+    exit 1
+  fi
+  if [ ! -d "$SCRIPT_DIR/core" ]; then
+    cp -r "$TMP_DOWNLOAD/core" "$SCRIPT_DIR/core"
+  fi
+  if [ ! -d "$SCRIPT_DIR/adapters" ]; then
+    cp -r "$TMP_DOWNLOAD/adapters" "$SCRIPT_DIR/adapters"
+  fi
+  rm -rf "$TMP_DOWNLOAD"
+  echo "   OK SDD Standard downloaded"
+  echo ""
+fi
+
 # Validar que el adapter existe
 ADAPTER="$SCRIPT_DIR/adapters/$IDE/adapter.sh"
 if [ ! -f "$ADAPTER" ]; then
