@@ -243,3 +243,168 @@ To find active cortes, the agent queries ADO:
 - Prioritizes corte bugs in work suggestions
 - Notifies when all corte bugs are Fixed
 - Follows standard bug flow for each bug (no design, no tasks)
+
+---
+
+## Production release flow
+
+> After QA certifies a corte, the code is promoted from qa to prod.
+> Same surgical approach as the corte release: audit, filter, PR, human merges.
+
+### Environments
+
+```
+develop  →  qa  →  prod (main)
+   │          │         │
+   │          │         └── Production — end users
+   │          └── QA — testing/certification
+   └── Development — active work
+```
+
+### When to promote to prod
+A corte is ready for prod when:
+- All corte bugs are `Done` in ADO (QA validated)
+- All HU/E2E are `Test Passed` or `QA Passed`
+- QA Lead confirms: "corte certificado" (formal comment in ADO or chat)
+
+### Audit before prod release (mandatory)
+
+Same principle as the corte audit — qa may have **multiple cortes** or work in different states.
+
+1. **List certified cortes** — which cortes has QA fully certified?
+2. **Audit qa branch** — for each PR/commit in qa since last prod release:
+   - Is this from a certified corte? → **include**
+   - Is this from a corte still in testing? → **exclude**
+   - Is this a hotfix already in prod? → **skip** (already there)
+3. **Present audit results** to human:
+   ```
+   📋 Auditoría de Release a Producción
+
+   ✅ Cortes certificados para producción:
+   - Corte al DD-MM-YYYY: [N bugs Done, M HU QA Passed]
+
+   ✅ Incluidos:
+   - AB#XXXX: [description] — Done
+   - AB#YYYY: [description] — Done
+
+   🚫 Excluidos (corte aún en testing):
+   - AB#ZZZZ: [description] — In Testing (corte al DD-MM-YYYY+7)
+
+   📦 Versión propuesta: vX.Y.0
+   ```
+4. **Wait for human approval** before proceeding
+
+### Creating the prod release branch
+
+1. **Create branch from main**: `git checkout -b release/prod-DD-MM-YYYY origin/main`
+2. **Bring ONLY certified work** from qa:
+   - Cherry-pick or merge only the certified corte commits
+   - Exclude anything from cortes still in testing
+3. **Update VERSION file** (if versioning.version_file is enabled in .sdd-config.json)
+4. **Verify**: run tests, lint, ensure no regressions
+5. **PROPOSE**: "Release branch ready. I will create PR: `release/prod-DD-MM-YYYY` → `main`" → wait for approval
+6. **Create PR**:
+   - Title: `release: prod DD-MM-YYYY (vX.Y.Z)`
+   - Body: audit trail (cortes included, AB# list, exclusions, version)
+   - Base: `main`
+   - Compare: `release/prod-DD-MM-YYYY`
+
+### Sign-off for prod (2 approvals mandatory)
+
+| # | Who | How | What they confirm |
+|---|-----|-----|-------------------|
+| 1 | **QA** | Comment on ADO PBIs or chat | "Corte certificado — all tests passed" |
+| 2 | **Human** (Dev Lead / PO) | Merges the PR to main | Code is stable, ready for production |
+
+The agent NEVER merges to prod (Gate 3 + Gate 4).
+
+### After merge to prod
+
+1. **Tag the release** with semver: `git tag vX.Y.Z` → `git push --tags`
+2. **Update VERSION file** if enabled
+3. **Move WIs to Done** in ADO — NOW the agent can trigger this (only after prod deploy, with approval)
+4. **Post audit comment** on each PBI de Corte in ADO:
+   ```
+   🚀 Desplegado a Producción — DD-MM-YYYY
+
+   Versión: vX.Y.Z
+   Rama de Release: release/prod-DD-MM-YYYY
+   Pull Request: [Repo#N](PR_URL)
+   Tag: vX.Y.Z
+
+   Work Items cerrados:
+   - AB#XXXX: [description] → Done
+   - AB#YYYY: [description] → Done
+   ```
+5. **Sync branches**: ensure main changes flow back to develop (merge main → develop or rebase)
+6. **Notify human**: "Release vX.Y.Z deployed to production. [N] WIs moved to Done."
+
+### Hotfix flow (emergency fix in prod)
+
+For critical bugs found in production that cannot wait for the next corte:
+
+1. **Create branch from main**: `hotfix/description`
+2. Fix → test → PR to `main` (with approval)
+3. **Bump patch version**: `vX.Y.Z` → `vX.Y.Z+1`
+4. Tag and deploy
+5. **Backport**: merge main → develop AND main → qa to keep branches in sync
+6. Create bug in ADO with "hotfix" tag
+
+---
+
+## Semver versioning strategy
+
+> Version lives in **git tags** (source of truth) and optionally in a **VERSION file**.
+
+### Version format
+```
+vMAJOR.MINOR.PATCH
+```
+
+### Bump rules
+
+| Event | Bump | Example | Who triggers |
+|-------|------|---------|-------------|
+| Corte promoted to prod | **minor** | `v1.0.0` → `v1.1.0` | Human (merges PR to main) |
+| Hotfix to prod | **patch** | `v1.1.0` → `v1.1.1` | Human (merges hotfix PR) |
+| Breaking change (API contract change) | **major** | `v1.1.0` → `v2.0.0` | Human (explicit decision) |
+
+### How the agent determines the next version
+
+1. Read latest git tag: `git describe --tags --abbrev=0`
+2. Parse current version: `vMAJOR.MINOR.PATCH`
+3. Based on release type:
+   - Corte → bump minor, reset patch: `v1.1.3` → `v1.2.0`
+   - Hotfix → bump patch: `v1.2.0` → `v1.2.1`
+   - Breaking → bump major, reset minor and patch: `v1.2.1` → `v2.0.0`
+4. PROPOSE: "Next version: vX.Y.Z" → wait for human to confirm or override
+
+### VERSION file (optional)
+
+If `versioning.version_file` is `true` in `.sdd-config.json`:
+- File: `VERSION` at repo root (plain text, just the version number without `v` prefix)
+- Updated by the agent as part of the release branch (before PR)
+- Example content: `1.2.0`
+
+### First release
+
+If no tags exist yet:
+- Agent proposes `v1.0.0` as the initial version
+- Human can override (e.g., `v0.1.0` for pre-release)
+
+### What the agent NEVER does with versioning
+- NEVER tags without human approval
+- NEVER decides major bump autonomously (always asks)
+- NEVER skips tagging after prod release
+- NEVER modifies existing tags (no force-push tags)
+
+### Configuration in .sdd-config.json
+
+```json
+"versioning": {
+  "strategy": "semver",
+  "source": "git-tag",
+  "version_file": true,
+  "initial_version": "1.0.0"
+}
+```

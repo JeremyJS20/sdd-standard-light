@@ -10,7 +10,13 @@
 | Feature | `feat/AB#id-description` | `feat/AB#5678-export-excel-reportes` |
 | Bug fix | `fix/AB#id-description` | `fix/AB#1234-login-google-oauth` |
 | Hotfix | `hotfix/description` | `hotfix/critical-auth-bypass` |
-| Release (corte) | `release/corte-DD-MM-YYYY` | `release/corte-02-10-2026` |
+| Release (corte → qa) | `release/corte-DD-MM-YYYY` | `release/corte-02-10-2026` |
+| Release (qa → prod) | `release/prod-DD-MM-YYYY` | `release/prod-02-10-2026` |
+
+Version tags:
+- Format: `vMAJOR.MINOR.PATCH` (e.g., `v1.2.0`)
+- Created after merge to main/prod
+- See `qa-corte-workflow.md` §Semver versioning strategy
 
 Rules:
 - Use kebab-case for description (lowercase, hyphens, no spaces)
@@ -45,3 +51,6 @@ Rules:
 - DO NOT force-push without explicit human approval
 - DO NOT amend commits that have been pushed (unless explicitly asked)
 - DO NOT merge develop directly to qa without auditing scope — use release/corte branch (see `qa-corte-workflow.md`)
+- DO NOT merge qa directly to main without auditing scope — use release/prod branch (see `qa-corte-workflow.md`)
+- DO NOT create or modify git tags without human approval
+- DO NOT force-push tags (no `git push --force --tags`)

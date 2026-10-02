@@ -380,6 +380,12 @@ if [ ! -f ".sdd-config.json" ] || [ "$FORCE" = true ]; then
     "rule": "Business Rule",
     "pbi": "Product Backlog Item",
     "e2e_scenario": "E2E Scenario"
+  },
+  "versioning": {
+    "strategy": "semver",
+    "source": "git-tag",
+    "version_file": true,
+    "initial_version": "1.0.0"
   }
 }
 CONFIG_EOF

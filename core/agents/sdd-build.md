@@ -109,6 +109,20 @@ At session start, the agent automatically checks ADO for active cortes (PBIs wit
 - DO NOT decide cut dates (QA only)
 - DO NOT skip corte bugs to work on features without asking human first
 
+## Production release flow (qa → prod)
+> See `qa-corte-workflow.md` §Production release flow for full details.
+
+When human requests promotion to production:
+1. **Audit qa vs prod scope** — list certified cortes, exclude cortes still in testing
+2. **Create surgical branch**: `release/prod-DD-MM-YYYY` from `origin/main`
+3. Bring ONLY certified work from qa
+4. **Determine version**: read latest git tag, propose semver bump (minor for corte, patch for hotfix)
+5. **Update VERSION file** if enabled in .sdd-config.json
+6. **PROPOSE PR**: `release/prod-DD-MM-YYYY` → `main` — wait for approval
+7. **Human merges** (Gate 3 + Gate 4 — agent NEVER merges to prod)
+8. **After merge**: tag `vX.Y.Z`, push tags, move WIs to Done in ADO, post audit comment
+9. **Sync branches**: merge main → develop to keep in sync
+
 ## Tool routing (automatic, without user asking)
 - Need library docs → context7
 - Complex problem → sequential-thinking
