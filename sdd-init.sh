@@ -366,7 +366,10 @@ if [ ! -f ".sdd-config.json" ] || [ "$FORCE" = true ]; then
     "done": "Done",
     "reopen": "Reopen",
     "hold": "On Hold",
-    "defer": "Fix Later"
+    "defer": "Fix Later",
+    "acceptance": "Acceptance",
+    "test_passed": "Test Passed",
+    "qa_passed": "QA Passed"
   },
   "wi_types": {
     "feature": "Feature",
@@ -374,7 +377,9 @@ if [ ! -f ".sdd-config.json" ] || [ "$FORCE" = true ]; then
     "requirement": "User Story",
     "data": "Data Dictionary",
     "structure": "Structure",
-    "rule": "Business Rule"
+    "rule": "Business Rule",
+    "pbi": "Product Backlog Item",
+    "e2e_scenario": "E2E Scenario"
   }
 }
 CONFIG_EOF
@@ -495,7 +500,7 @@ echo "======================================================"
 echo ""
 echo "Archivos generados:"
 echo "   - Config del IDE ($IDE)"
-echo "   - $IDE_DIR/rules/ (11 steering rules)"
+echo "   - $IDE_DIR/rules/ (12 steering rules)"
 echo "   - $IDE_DIR/agents/ (2 agentes)"
 echo "   - specs/_templates/ (3 templates)"
 echo "   - .sdd-memory/ (server-memory store)"

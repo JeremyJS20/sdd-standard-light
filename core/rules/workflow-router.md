@@ -92,13 +92,20 @@ The agent detects the entry point automatically based on the AB#:
 
 ## Automatic type detection
 
-The agent automatically detects if it is a Feature or Bug:
+The agent automatically detects if it is a Feature, Bug, or QA Corte:
 1. Check for Functional Package: `docs/requirements/functional-packages/Functional-Package-HU-{id}-*.md`
 2. If Functional Package exists → read it → type is in "Package Identity" section (usually User Story/Feature)
-3. If no Functional Package → read WI from Azure DevOps (type: Task, User Story, Bug)
+3. If no Functional Package → read WI from Azure DevOps (type: Task, User Story, Bug, PBI)
 4. If type = Task/User Story/Feature → Feature flow
 5. If type = Bug → Bug flow
-6. If no type → ask human "Is this a feature or bug?"
+6. If type = PBI AND title contains `corte al` → QA Corte context (see `qa-corte-workflow.md`)
+7. If no type → ask human "Is this a feature or bug?"
+
+### QA Corte detection (automatic at session start)
+Even without an explicit AB#, the agent checks for active cortes:
+- Query ADO for PBIs with `corte al` in title and state = `Acceptance`
+- If found → show corte summary and prioritize corte bugs
+- See `qa-corte-workflow.md` for full detection rules and developer flow
 
 ## Automatic phase detection
 
@@ -120,4 +127,4 @@ The agent detects what phase of work it is in:
 - "Explore codebase" → do it automatically (codebase-memory)
 - "Load context into memory" → do it automatically (server-memory)
 - "View project status" → do it automatically (precheck)
-- Only present WORK options: Feature or Bug
+- Only present WORK options: Feature, Bug, or QA Corte bugs

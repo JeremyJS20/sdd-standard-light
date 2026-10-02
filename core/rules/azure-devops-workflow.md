@@ -11,11 +11,13 @@ The analyst documents in ADO using these work item types:
 | WI Type | Purpose | Who creates it |
 |---------|---------|----------------|
 | Feature | New functionality or enhancement | Analyst |
-| Bug | Defect to fix | Analyst |
+| Bug | Defect to fix | Analyst / QA |
 | User Story | Requirement equivalent (user perspective) | Analyst |
 | Data Dictionary | Data model/structure that supports a feature or bug | Analyst |
 | Structure | Architecture/structure that supports a feature or bug | Analyst |
 | Business Rule | Business rule that supports a feature or bug | Analyst |
+| Product Backlog Item (PBI) | QA corte container — groups exploratory testing by module and cut date | QA |
+| E2E Scenario | End-to-end test scenario for acceptance validation | QA |
 
 The agent reads ALL related WIs for a given AB# — a Feature or Bug may have linked Data Dictionary, Structure, and Business Rule items that provide context.
 
@@ -49,6 +51,9 @@ Fix Later   (any state → deferred, human decision)
 | Reopen | QA | QA finds issues during testing |
 | On Hold | Human | Work paused (any state) |
 | Fix Later | Human | Work deferred (any state) |
+| Acceptance | QA | PBI de Corte is active (QA testing cycle) |
+| Test Passed | QA | HU/E2E — all test cases passed |
+| QA Passed | QA | HU/E2E — QA validates the functionality |
 
 ### Agent-allowed transitions
 The agent (developer) can ONLY perform these transitions:
@@ -63,6 +68,9 @@ The agent NEVER performs these transitions:
 - → Reopen (QA only)
 - → On Hold (human decision only)
 - → Fix Later (human decision only)
+- → Acceptance (QA only — corte PBI lifecycle)
+- → Test Passed (QA only — HU/E2E validation)
+- → QA Passed (QA only — QA sign-off)
 
 ## Feature flow (developer receives requirement)
 
@@ -158,3 +166,19 @@ A technical decision can continue without escalation when it does NOT modify the
 - The agent NEVER edits files in `docs/requirements/functional-packages/`
 - The agent NEVER deletes or renames Functional Packages
 - The agent only READS them as input for the feature flow
+
+## QA Corte flow (testing cut cycle)
+
+> See `qa-corte-workflow.md` for full corte detection, structure, and developer flow.
+
+QA operates in weekly testing cycles called "cortes". Each corte groups PBIs, bugs, and HU/E2E scenarios under a cut date.
+
+**Developer responsibilities during a corte:**
+1. Agent detects active corte at session start (PBIs with `corte al DD-MM-YYYY` in title, state = `Acceptance`)
+2. Agent shows summary of pending bugs from the corte
+3. Corte bugs take priority over features (agent suggests, human decides)
+4. Each bug follows the standard bug flow (no design, no tasks)
+5. Agent notifies when all corte bugs are Fixed
+
+**Agent NEVER**: creates PBIs de Corte, moves to Acceptance/Test Passed/QA Passed, decides cut dates.
+

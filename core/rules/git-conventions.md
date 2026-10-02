@@ -10,6 +10,7 @@
 | Feature | `feat/AB#id-description` | `feat/AB#5678-export-excel-reportes` |
 | Bug fix | `fix/AB#id-description` | `fix/AB#1234-login-google-oauth` |
 | Hotfix | `hotfix/description` | `hotfix/critical-auth-bypass` |
+| Release (corte) | `release/corte-DD-MM-YYYY` | `release/corte-02-10-2026` |
 
 Rules:
 - Use kebab-case for description (lowercase, hyphens, no spaces)
@@ -28,6 +29,7 @@ Rules:
 | `refactor` | Code refactor, no behavior change | `refactor(AB#5678): extract validation to shared module` |
 | `test` | Adding or updating tests | `test(AB#5678): add E2E tests for export flow` |
 | `chore` | Maintenance, deps, config | `chore: update dependencies` |
+| `release` | QA corte release branch PR | `release: corte al 02-10-2026` |
 
 Rules:
 - ALWAYS include AB# in parentheses for features and bugs: `feat(AB#5678): ...`
@@ -36,8 +38,10 @@ Rules:
 - DO NOT end commit message with a period
 
 ## What NEVER to do
-- DO NOT commit without AB# (except chore commits for maintenance)
+- DO NOT commit without AB# (except chore and release commits)
 - DO NOT commit directly to main or master — always via PR
+- DO NOT commit directly to qa — always via release/corte branch + PR
 - DO NOT auto-merge PRs — human review is mandatory
 - DO NOT force-push without explicit human approval
 - DO NOT amend commits that have been pushed (unless explicitly asked)
+- DO NOT merge develop directly to qa without auditing scope — use release/corte branch (see `qa-corte-workflow.md`)

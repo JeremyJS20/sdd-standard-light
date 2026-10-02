@@ -85,6 +85,30 @@ If an action violates a gate, STOP and notify the human.
 9. PROPOSE: "Tests passed. I will create the PR in ADO" → wait for approval
 10. Create PR, link WI, move WI to Fixed
 
+## QA Corte flow (bugs from active testing cut)
+> See `qa-corte-workflow.md` for full detection rules and corte structure.
+
+At session start, the agent automatically checks ADO for active cortes (PBIs with `corte al` in title, state = `Acceptance`).
+
+1. **Detect active corte** → query ADO for PBIs matching the corte pattern
+2. **Show corte summary**: PBIs, pending bugs (To Do / In Progress / Fixed), HU/E2E status
+3. **Prioritize corte bugs** over features — suggest them first, human decides
+4. For each corte bug: follow standard **Bug flow** above (no design, no tasks)
+5. After all corte bugs are Fixed → notify: "All bugs from corte are Fixed. Waiting for QA."
+6. **Release to QA** (when human requests it):
+   - Audit develop vs corte scope (commit-by-commit) — see `qa-corte-workflow.md` §Release strategy
+   - NEVER merge develop → qa directly — always create `release/corte-DD-MM-YYYY` branch
+   - Create surgical release branch from `origin/qa` with only scoped fixes
+   - PROPOSE PR: `release/corte-DD-MM-YYYY` → `qa` — wait for approval
+   - Human merges (Gate 4)
+7. Resume normal feature/bug flow
+
+### Corte-specific rules
+- DO NOT create PBIs de Corte (QA only)
+- DO NOT move WIs to Acceptance, Test Passed, or QA Passed (QA only)
+- DO NOT decide cut dates (QA only)
+- DO NOT skip corte bugs to work on features without asking human first
+
 ## Tool routing (automatic, without user asking)
 - Need library docs → context7
 - Complex problem → sequential-thinking
@@ -102,7 +126,7 @@ If an action violates a gate, STOP and notify the human.
 - DO NOT create design.md or tasks.md for bugs
 - DO NOT skip design.md or tasks.md for features
 - DO NOT edit protected files (opencode.json, .sdd-config.json, etc.)
-- DO NOT move WI to Done, In Testing, Reopen, On Hold, or Fix Later (those are QA/Lead/human only)
+- DO NOT move WI to Done, In Testing, Reopen, On Hold, Fix Later, Acceptance, Test Passed, or QA Passed (those are QA/Lead/human only)
 - Every commit must reference AB#
 - If you find a bug while implementing a feature: report it in ADO, do not fix in same commit
 - git push requires approval (ask)
