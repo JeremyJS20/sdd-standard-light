@@ -169,6 +169,50 @@ After audit approval:
 - Sync qa branch to all remotes (if dual remote: GitHub + Azure DevOps)
 - Update corte bugs in ADO: those merged are now in QA environment for testing
 - Notify human: "Release corte al DD-MM-YYYY deployed to QA. QA can begin validation."
+- **Post audit comment** on each PBI de Corte in ADO (see §Audit trail below)
+
+### Out-of-scope items (human-approved additions)
+Sometimes work outside the corte scope needs to go to QA (e.g., an unplanned feature, a fix from another sprint).
+- The agent flags it during audit as "not in corte scope"
+- **If human explicitly approves inclusion** → include it in the release branch
+- Mark it in the audit as "included by human approval (out of corte scope)"
+- NEVER include out-of-scope items without explicit human confirmation
+
+### Audit trail (mandatory after release)
+
+After the release PR is created (or merged), the agent posts a formal audit comment on each PBI de Corte in ADO via MCP. This creates a traceable record for QA and compliance.
+
+**Audit comment template** (posted to ADO PBI discussion):
+```
+📋 Auditoría de Entrega — Corte al DD-MM-YYYY
+
+Fecha de Entrega: DD de [Month] de YYYY
+Rama de Release: release/corte-DD-MM-YYYY
+Pull Request a QA: [Repo#N](PR_URL)
+
+Bugs incluidos y resueltos:
+- AB#XXXX: [description]
+- AB#YYYY: [description]
+- AB#ZZZZ: [description]
+
+Componentes adicionales (aprobados por humano):
+- [description] (out of corte scope, included by human approval)
+
+Exclusiones autorizadas (postergadas al corte DD-MM-YYYY):
+- AB#WWWW: [description]
+
+Ambiente destino: QA ([environment_name])
+```
+
+**PR body** must also contain:
+- List of AB# included with descriptions
+- List of AB# excluded with reasons
+- Any out-of-scope items and who approved them
+
+This audit trail serves as:
+- **QA reference**: QA knows exactly what to test and what NOT to test
+- **Compliance record**: traceable decisions with human approval
+- **Post-mortem data**: if something leaks or is missing, the audit shows why
 
 ### What the agent NEVER does during release
 - NEVER merges develop → qa directly without audit
