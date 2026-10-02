@@ -112,8 +112,8 @@ sed -i 's/,\s*,/,/g' .agents/mcp_config.json 2>/dev/null || true
 
 echo "   OK mcp_config.json generated (7 MCPs + codebase-memory-mcp if installed)"
 
-# --- 3. Convert 6 rules to skills ---
-SKILL_RULES=("precheck" "protected-files" "token-optimization" "tool-protocol" "azure-devops-workflow" "git-conventions")
+# --- 3. Convert 7 rules to skills ---
+SKILL_RULES=("precheck" "protected-files" "token-optimization" "tool-protocol" "azure-devops-workflow" "git-conventions" "qa-corte-workflow")
 
 for rule in "${SKILL_RULES[@]}"; do
   mkdir -p ".agents/skills/$rule"
@@ -128,7 +128,7 @@ $(cat "$SCRIPT_DIR/core/rules/$rule.md")
 SKILL_EOF
   fi
 done
-echo "   OK 6 rules converted to skills"
+echo "   OK 7 rules converted to skills"
 
 # --- 4. Generate AGENTS.md condensed (remaining rules) ---
 CONDENSED_RULES=("workflow-router" "spec-integration" "artifact-storage" "change-propagation" "spec-structure-gate")
@@ -172,7 +172,16 @@ echo "" >> .agents/AGENTS.md
 echo "## WI States" >> .agents/AGENTS.md
 echo "To Do → In Progress → Fixed → In Testing → Done" >> .agents/AGENTS.md
 echo "Reopen: QA finds issues. On Hold/Fix Later: human decision." >> .agents/AGENTS.md
+echo "Acceptance: QA corte PBI active. Test Passed/QA Passed: HU/E2E validated by QA." >> .agents/AGENTS.md
 echo "Agent only: To Do→In Progress, In Progress→Fixed, Reopen→In Progress" >> .agents/AGENTS.md
+echo "Agent NEVER: Done, In Testing, Reopen, On Hold, Fix Later, Acceptance, Test Passed, QA Passed" >> .agents/AGENTS.md
+echo "" >> .agents/AGENTS.md
+echo "## QA Corte (testing cut cycle)" >> .agents/AGENTS.md
+echo "See qa-corte-workflow skill for full rules." >> .agents/AGENTS.md
+echo "- Agent detects active cortes at session start (PBIs with 'corte al' in title, state=Acceptance)" >> .agents/AGENTS.md
+echo "- Corte bugs take priority over features" >> .agents/AGENTS.md
+echo "- NEVER merge develop→qa directly — always audit scope and create release/corte-DD-MM-YYYY branch" >> .agents/AGENTS.md
+echo "- Post audit trail comment on ADO PBIs after release" >> .agents/AGENTS.md
 
 echo "   OK AGENTS.md condensed generated"
 
@@ -198,6 +207,7 @@ skills:
   - skills/tool-protocol
   - skills/azure-devops-workflow
   - skills/git-conventions
+  - skills/qa-corte-workflow
 ---
 
 # SDD Router
@@ -209,8 +219,9 @@ You are the SDD router agent. Role: developer.
 2. If precheck Step 5 fails (no code): STOP. Tell user to install SDD in the codebase repo.
 3. Load server-memory (decisions, conventions, corrections)
 4. Read Azure DevOps → show assigned items from current sprint
-5. Detect type: Feature or Bug
-6. Route to sdd-plan (analysis) or sdd-build (implementation)
+5. Check for active QA corte (PBIs with 'corte al' in title, state=Acceptance)
+6. Detect type: Feature, Bug, or QA Corte
+7. Route to sdd-plan (analysis) or sdd-build (implementation)
 
 ## Routing
 - Analysis/planning → sdd-plan agent (read-only, proposes)
@@ -239,6 +250,7 @@ skills:
   - skills/precheck
   - skills/tool-protocol
   - skills/azure-devops-workflow
+  - skills/qa-corte-workflow
 ---
 
 # SDD Plan Agent
@@ -250,8 +262,9 @@ You are the SDD plan agent. Role: developer. READ-ONLY.
 2. If precheck Step 5 fails (no code): STOP. Do NOT offer work options. Tell user to install SDD in the codebase repo.
 3. Load server-memory (decisions, conventions, corrections)
 4. Read Azure DevOps → show assigned items from current sprint
-5. Detect type: Feature or Bug
-6. Detect phase of work
+5. Check for active QA corte
+6. Detect type: Feature, Bug, or QA Corte
+7. Detect phase of work
 
 ## For features
 - Detect entry point:
@@ -272,6 +285,13 @@ You are the SDD plan agent. Role: developer. READ-ONLY.
 - Propose a fix plan
 - Identify impact of the fix
 
+## For QA Corte (testing cut cycle)
+- Query ADO for active cortes (PBIs with 'corte al' in title, state=Acceptance)
+- Show corte summary: PBIs, pending bugs, HU/E2E validation status
+- For each pending bug: analyze code and propose fix plan (read-only)
+- Identify dependencies between corte bugs
+- Highlight blocking bugs (bugs that block HU/E2E from reaching Test Passed)
+
 ## After finishing an AB# (when user returns from sdd-build)
 - Read Azure DevOps → check for remaining assigned items in To Do or Reopen
 - Automatically present remaining items
@@ -285,6 +305,7 @@ You are the SDD plan agent. Role: developer. READ-ONLY.
 - Only present WORK options (when code IS present):
   1. Feature — propose design + architecture + tasks
   2. Bug — analyze code and propose fix plan
+  3. QA Corte — show summary and propose working on corte bugs
 
 ## HARD GATES
 1. One spec at a time
@@ -294,6 +315,7 @@ You are the SDD plan agent. Role: developer. READ-ONLY.
 5. Requirements from Functional Package or ADO
 6. Read linked WIs (Data Dictionary, Structure, Business Rule)
 7. State transitions — plan agent does NOT move WI states
+8. DO NOT move WIs to Acceptance, Test Passed, or QA Passed (QA only)
 PLAN_EOF
 
 # sdd-build
@@ -317,6 +339,7 @@ skills:
   - skills/tool-protocol
   - skills/azure-devops-workflow
   - skills/git-conventions
+  - skills/qa-corte-workflow
 ---
 
 # SDD Build Agent
@@ -340,8 +363,9 @@ You are the SDD build agent. Role: developer.
 2. If precheck Step 5 fails (no code): STOP. Tell user to install SDD in the codebase repo.
 3. Load server-memory
 4. If AB# in context, read WI from ADO automatically
-5. Detect type: Feature → create design + tasks. Bug → direct fix.
-6. Detect phase of work and proceed
+5. Check for active QA corte (PBIs with 'corte al' in title, state=Acceptance)
+6. Detect type: Feature → create design + tasks. Bug → direct fix. QA Corte → prioritize corte bugs.
+7. Detect phase of work and proceed
 
 ## Feature flow
 1. Detect entry point:
@@ -386,6 +410,23 @@ You are the SDD build agent. Role: developer.
 9. PROPOSE: create PR → wait for approval
 10. Create PR, link WI, move WI to Fixed
 
+## QA Corte flow (bugs from active testing cut)
+See qa-corte-workflow skill for full detection rules, release strategy, and audit trail.
+
+1. Detect active corte → query ADO for PBIs matching the corte pattern
+2. Show corte summary: PBIs, pending bugs (To Do / In Progress / Fixed), HU/E2E status
+3. Prioritize corte bugs over features — suggest them first, human decides
+4. For each corte bug: follow standard Bug flow above (no design, no tasks)
+5. After all corte bugs are Fixed → notify: "All bugs from corte are Fixed. Waiting for QA."
+6. Release to QA (when human requests it):
+   - Audit develop vs corte scope (commit-by-commit)
+   - NEVER merge develop→qa directly — always create release/corte-DD-MM-YYYY branch
+   - Create surgical release branch from origin/qa with only scoped fixes
+   - PROPOSE PR: release/corte-DD-MM-YYYY → qa — wait for approval
+   - Post audit trail comment on ADO PBIs
+   - Human merges (Gate 4)
+7. Resume normal feature/bug flow
+
 ## After finishing an AB#
 - Read Azure DevOps → check for remaining assigned items
 - If items remain: present them and ask to continue
@@ -398,7 +439,7 @@ You are the SDD build agent. Role: developer.
 - DO NOT create specs without templates
 - DO NOT create design.md/tasks.md for bugs
 - DO NOT edit protected files
-- DO NOT move WI to Done, In Testing, Reopen, On Hold, Fix Later
+- DO NOT move WI to Done, In Testing, Reopen, On Hold, Fix Later, Acceptance, Test Passed, or QA Passed
 - Every commit must reference AB#
 - git push requires approval
 
