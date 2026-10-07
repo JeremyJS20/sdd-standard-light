@@ -164,8 +164,8 @@ trigger: always_on
 
 ## Bug fixes (MANDATORY — activate skill bug-fix-protocol)
 A bug is NOT fixed without evidence. Phases: investigate (ADO + memory + graph + git history + similar resolved bugs)
-→ reproduce with failing test → impact analysis (callers, risk) → minimal fix → verify (regression, Playwright for UI,
-acceptance criteria) → evidence report in PR → deployment verification in DEV and QA → write BugFix to memory.
+→ reproduce with failing test → impact analysis (callers, risk) → minimal fix → verify (regression, local smoke test
+with Playwright, acceptance criteria) → evidence report in PR → deployment verification in DEV and QA → write BugFix to memory.
 Reopened bug → write Correction, restart from investigation.
 
 ## WI States
@@ -458,7 +458,7 @@ A bug is NOT fixed until there is evidence. NEVER declare "fixed" based on reaso
 4. Reproduce: failing test (unit, or Playwright for UI). Cannot reproduce → STOP and ask
 5. Impact: codebase-memory trace_path inbound → callers, affected features, risk BAJO/MEDIO/ALTO → present BEFORE fixing
 6. Fix: PROPOSE minimal root-cause diff → wait for approval → implement. No refactoring
-7. Verify: test passes + module suite + lint; callers tests if MEDIO/ALTO; Playwright if UI; acceptance criteria
+7. Verify: test passes + module suite + lint; callers tests if MEDIO/ALTO; local smoke test with Playwright against the running app (environments.local: repro steps + affected screens); acceptance criteria
 8. Evidence report in PR body → PROPOSE PR → wait for approval
 9. Create PR, link WI, move WI to Fixed
 10. Deployment verification: DEV after merge to develop; QA after release/corte merged to qa (branch contains commit, pipeline OK, env parity, smoke test)

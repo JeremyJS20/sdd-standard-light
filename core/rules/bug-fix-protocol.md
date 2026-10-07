@@ -92,11 +92,31 @@ Risk levels:
 | Lint + type-check pass | ALWAYS |
 | Tests covering each caller from Phase 3 | Risk MEDIO or ALTO |
 | New unit tests for uncovered callers | Risk MEDIO or ALTO and caller has no tests |
-| Playwright E2E following repro steps | UI bug, OR risk ALTO with UI impact (if E2E infra exists) |
+| **Local smoke test** (Playwright against local app, see §5.1) | UI bug, OR any bug with UI impact (risk MEDIO/ALTO) |
+| Playwright E2E suite following repro steps | UI bug, OR risk ALTO with UI impact (if E2E infra exists) |
 | Full test suite | Risk ALTO |
 | Validate against acceptance criteria of the WI / parent HU | ALWAYS — "no error" is NOT the same as "correct" |
 
 If any check fails → back to Phase 4. NEVER propose the PR with failing checks.
+
+### 5.1 Local smoke test (before the PR)
+
+Verifies the fix works in a running app and the affected screens still work. Does NOT replace DEV/QA verification (Phase 7) — local cannot detect missing migrations, env vars or flags in other environments.
+
+1. **Resolve local config** from `.sdd-config.json` → `environments.local`:
+   - `url` (e.g., `http://localhost:3000`) and `start_command` (e.g., `npm run dev`)
+   - If empty → detect from the stack: `package.json` scripts (`dev`, `start`), framework defaults (Vite 5173, Next/CRA 3000, Angular 4200, Django 8000, Flask 5000, Rails 3000, .NET launchSettings.json), `docker-compose.yml` ports. PROPOSE the detected values → wait for confirmation → save them as a `Convention` in server-memory
+2. **Check if already running**: probe the URL. If it responds → reuse it, do NOT start a second instance
+3. **Start the app** in the background with `start_command` → wait until the URL responds (timeout ~120s). If it fails to start → report the error, do NOT continue
+4. **Run Playwright against the local URL**:
+   - The repro steps from the WI → the bug no longer happens
+   - The expected behavior / acceptance criteria → correct result, not just "no error"
+   - Each affected screen from Phase 3 (callers with UI) → still works
+   - Capture a screenshot of the fixed scenario → attach/reference it in the evidence report
+5. **Stop the app** if the agent started it (never kill a server the user was already running)
+6. Local data: use seed/test data. NEVER point the local app to the QA or prod database to run the smoke test
+
+If the app cannot run locally (missing secrets, external dependencies, no local DB) → flag "local smoke test not possible: [reason]" in the evidence report and rely on DEV verification (Phase 7.1).
 
 ## Phase 6: Confidence gate (evidence report)
 
@@ -115,6 +135,7 @@ The agent does NOT create the PR or move the WI to Fixed until this report is co
 - Unit/integration: [N passed / N total]
 - Regresión (callers): [N passed] / no aplica
 - E2E Playwright: [scenario] ✅ / no aplica / sin infra E2E (riesgo)
+- Smoke test local: ✅ [url] — [screens checked] (screenshot) / no aplica / no posible: [reason]
 - Criterios de aceptación validados: [list]
 
 **Requisitos de despliegue:** [migrations / env vars / feature flags / cache / none]
@@ -159,11 +180,15 @@ If any step fails → report exactly which step and environment to the human. NE
 
 ```json
 "environments": {
-  "dev":  { "branch": "develop", "url": "" },
-  "qa":   { "branch": "qa",      "url": "" },
-  "prod": { "branch": "main",    "url": "" }
+  "local": { "url": "http://localhost:3000", "start_command": "npm run dev" },
+  "dev":   { "branch": "develop", "url": "" },
+  "qa":    { "branch": "qa",      "url": "" },
+  "prod":  { "branch": "main",    "url": "" }
 }
 ```
+
+- `local` → used by Phase 5.1 (smoke test before PR). Empty → agent detects from the stack and asks to confirm
+- `dev` / `qa` → used by Phase 7 (deployment verification)
 
 If a URL is empty → skip the smoke test and flag "no environment URL configured" in the evidence report.
 

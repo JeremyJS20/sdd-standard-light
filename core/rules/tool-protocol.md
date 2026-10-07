@@ -93,7 +93,7 @@ Rules:
 - NOT for project code. NOT for things you already know
 
 ## playwright → E2E, smoke tests
-- **When**: UI bug repro (Phase 2), UI regression (Phase 5), smoke test in DEV/QA (Phase 7)
+- **When**: UI bug repro (Phase 2), local smoke test before PR (Phase 5.1), smoke test in DEV/QA after deploy (Phase 7)
 - NOT for unit tests or pure API tests
 
 ## github → PRs, Actions (dual CI/CD)

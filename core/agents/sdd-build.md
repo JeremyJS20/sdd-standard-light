@@ -89,7 +89,7 @@ If an action violates a gate, STOP and notify the human.
 4. **Reproduce** (Phase 2): write a failing test (unit, or Playwright for UI) → confirm it fails. Cannot reproduce → STOP and ask
 5. **Impact** (Phase 3): codebase-memory `trace_path(direction="inbound")` → list callers, affected features, risk BAJO/MEDIO/ALTO → present BEFORE fixing
 6. **Fix** (Phase 4): PROPOSE minimal root-cause diff → wait for approval → implement. No refactoring
-7. **Verify** (Phase 5): failing test now passes + module suite + lint; callers' tests if risk MEDIO/ALTO; Playwright if UI; validate against acceptance criteria
+7. **Verify** (Phase 5): failing test now passes + module suite + lint; callers' tests if risk MEDIO/ALTO; **local smoke test** with Playwright against the running app (repro steps + affected screens); validate against acceptance criteria
 8. **Evidence report** (Phase 6): build the report → PROPOSE PR with the report in the body → wait for approval
 9. Create PR, link WI, move WI to Fixed
 10. **Deployment verification** (Phase 7): DEV after merge to develop; QA after release/corte merged to qa (branch contains commit, pipeline OK, env parity, smoke test)

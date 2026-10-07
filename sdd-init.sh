@@ -388,9 +388,10 @@ if [ ! -f ".sdd-config.json" ] || [ "$FORCE" = true ]; then
     "initial_version": "1.0.0"
   },
   "environments": {
-    "dev":  { "branch": "develop", "url": "" },
-    "qa":   { "branch": "qa",      "url": "" },
-    "prod": { "branch": "main",    "url": "" }
+    "local": { "url": "", "start_command": "" },
+    "dev":   { "branch": "develop", "url": "" },
+    "qa":    { "branch": "qa",      "url": "" },
+    "prod":  { "branch": "main",    "url": "" }
   }
 }
 CONFIG_EOF
