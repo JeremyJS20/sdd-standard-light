@@ -155,15 +155,18 @@ After audit approval:
    - **Cherry-pick** individual merge commits if develop has mixed scoped/unscoped work
    - **Merge specific fix branches** directly into the release branch if cleaner
 3. **Merge any fix branches not yet in develop** that ARE in corte scope
-4. **Verify**: run tests, lint, ensure no regressions
-5. **PROPOSE**: "Release branch ready. I will create PR: `release/corte-DD-MM-YYYY` → `qa`" → wait for approval
-6. **Create PR**:
+4. **Verify every in-scope fix is in the branch**: for each AB# in scope → `git branch --contains <fix-commit>` must include `release/corte-DD-MM-YYYY`. Any missing → STOP and report
+5. **Collect deploy requirements** from each fix's evidence report (migrations, env vars, feature flags, seed data) → list them in the PR body so they are applied in the QA environment
+6. **Verify**: run tests, lint, ensure no regressions
+7. **PROPOSE**: "Release branch ready. I will create PR: `release/corte-DD-MM-YYYY` → `qa`" → wait for approval
+8. **Create PR**:
    - Title: `release: corte al DD-MM-YYYY (scope summary)`
-   - Body: list of AB# included, AB# excluded, and rationale
+   - Body: list of AB# included, AB# excluded, rationale, and deploy requirements for QA
    - Base: `qa`
    - Compare: `release/corte-DD-MM-YYYY`
-7. **Human merges PR** (agent never auto-merges — Gate 4)
-8. CI/CD deploys automatically to QA environment
+9. **Human merges PR** (agent never auto-merges — Gate 4)
+10. CI/CD deploys automatically to QA environment
+11. **QA deployment verification** for each fix — see `bug-fix-protocol.md` §7.2 (pipeline OK, env parity, smoke test)
 
 ### After merge to qa
 - Sync qa branch to all remotes (if dual remote: GitHub + Azure DevOps)

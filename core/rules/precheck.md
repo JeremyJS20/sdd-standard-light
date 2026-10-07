@@ -5,10 +5,10 @@
 
 ## Step 1: Memory read
 Use server-memory to load context from previous sessions:
-- Search entities of type "Decision" — technical decisions made before
-- Search entities of type "Convention" — project conventions (naming, patterns, etc.)
-- Search entities of type "Correction" — past error corrections
-- If memory is empty (first session): OK, proceed without prior context
+- `search_nodes` for the project, the module and any AB# in context → `open_nodes` on results
+- Load entity types: `Decision`, `Convention`, `Correction`, `BugFix`, `Module`
+- **Report to user**: "🧠 Memoria: N entidades (X Decisions, Y Corrections, Z BugFixes)" or "🧠 Memoria vacía (primera sesión)"
+- If memory is empty (first session): OK, proceed — and START WRITING to it (see `tool-protocol.md` §Write protocol)
 - If memory has data: use that context in all subsequent decisions
 - NEVER repeat a decision that is already in memory without new information
 
@@ -19,12 +19,17 @@ Verify git has user.name and user.email configured:
 - If no identity: notify human "Configure git identity before proceeding"
 - DO NOT continue without git identity (commits need an author)
 
-## Step 3: MCP health check
+## Step 3: MCP health check + codebase index
 Verify MCP servers are connected and responding:
 - **server-memory**: try reading entities. If responds: OK. If not: CRITICAL ERROR.
-- **codebase-memory**: try list_projects. If responds: OK. If not: warn (limits capability but does not block).
+- **codebase-memory**: `list_projects`.
+  - Not responding → warn (limits capability but does not block)
+  - Responding but repo NOT indexed → run `index_repository` now (tell the user)
+  - Indexed but stale (new commits since last index, check with `index_status` / `detect_changes`) → re-index
+  - **Report**: "🗺️ Grafo: indexado (N nodos)" / "indexando…" / "no disponible"
 - **azure-devops**: try list_projects. If responds: OK. If not: warn "Azure DevOps not available — cannot read work items automatically". This does NOT block but limits the flow.
-- **context7**:@EFFECTIVE (4: sequential-thinking**: no check needed (on-demand).
+- **context7**: no check needed (on-demand).
+- **sequential-thinking**: no check needed (on-demand).
 - **github**: no check needed (on-demand).
 - **playwright**: no check needed (on-demand).
 - **stitch**: no check needed (on-demand).

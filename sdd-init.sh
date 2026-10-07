@@ -386,6 +386,11 @@ if [ ! -f ".sdd-config.json" ] || [ "$FORCE" = true ]; then
     "source": "git-tag",
     "version_file": true,
     "initial_version": "1.0.0"
+  },
+  "environments": {
+    "dev":  { "branch": "develop", "url": "" },
+    "qa":   { "branch": "qa",      "url": "" },
+    "prod": { "branch": "main",    "url": "" }
   }
 }
 CONFIG_EOF
@@ -506,7 +511,7 @@ echo "======================================================"
 echo ""
 echo "Archivos generados:"
 echo "   - Config del IDE ($IDE)"
-echo "   - $IDE_DIR/rules/ (12 steering rules)"
+echo "   - $IDE_DIR/rules/ (13 steering rules)"
 echo "   - $IDE_DIR/agents/ (2 agentes)"
 echo "   - specs/_templates/ (3 templates)"
 echo "   - .sdd-memory/ (server-memory store)"

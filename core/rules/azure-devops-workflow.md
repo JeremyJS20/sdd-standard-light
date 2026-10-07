@@ -95,22 +95,21 @@ The agent NEVER performs these transitions:
 
 ## Bug flow (developer receives bug directly)
 
-1. **Read WI from ADO** via azure-devops MCP
-   - Get: title, description, repro steps, severity, priority
-   - Read ALL linked WIs: Data Dictionary, Structure, Business Rule
-   - Verify type = Bug
+> Full protocol: `bug-fix-protocol.md` (8 phases, evidence required). Summary:
+
+1. **Investigate**: WI + repro steps + linked WIs + resolved Bugs in the same module + server-memory + git history
 2. **PROPOSE**: "I will create branch fix/AB#id-description" → wait for approval
-3. Create branch: `fix/AB#id-description-kebab-case`
-4. **Move WI to In Progress** via azure-devops MCP
-5. **Analyze bug**: use codebase-memory to find the code, sequential-thinking if complex
-6. **PROPOSE**: "Bug is in [file:line]. Fix: [description]. Impact: [analysis]" → wait for approval
-7. **Implement fix** (with approval)
+3. Create branch: `fix/AB#id-description-kebab-case` → **Move WI to In Progress**
+4. **Reproduce** with a failing test
+5. **Impact analysis**: callers via codebase-memory → risk level → present before fixing
+6. **Fix** (minimal, root cause) with approval
    - NO design.md (it is a fix, not a feature)
    - NO tasks.md (it is a direct fix)
-8. **Run tests** (with approval)
-9. **PROPOSE**: "I will create PR and move WI to Fixed" → wait for approval
-10. Create PR via azure-devops MCP, link to WI
-11. **Move WI to Fixed**
+7. **Verify** proportional to risk (regression tests, Playwright for UI, acceptance criteria)
+8. **Evidence report** in PR body → **PROPOSE** PR → wait for approval
+9. Create PR via azure-devops MCP, link to WI → **Move WI to Fixed**
+10. **Deployment verification** in DEV and QA
+11. **Write BugFix** to server-memory
 
 ## Rules
 - Every commit references the AB# (e.g., `feat(AB#5678): add export`, `fix(AB#1234): resolve login`)

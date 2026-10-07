@@ -58,11 +58,13 @@ cat > opencode.json << OPENCODE_EOF
 {
   "\$schema": "https://opencode.ai/config.json",
   "instructions": [
-    ".opencode/rules/precheck.md",
     ".opencode/rules/tool-protocol.md",
+    ".opencode/rules/precheck.md",
     ".opencode/rules/protected-files.md",
     ".opencode/rules/token-optimization.md",
     ".opencode/rules/azure-devops-workflow.md",
+    ".opencode/rules/bug-fix-protocol.md",
+    ".opencode/rules/qa-corte-workflow.md",
     ".opencode/rules/git-conventions.md",
     ".opencode/rules/workflow-router.md",
     ".opencode/rules/spec-integration.md",

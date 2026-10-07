@@ -12,7 +12,7 @@ sdd-standard/
 ├── README.md                # Este archivo
 ├── .env.example             # Variables de entorno template
 ├── core/                    # Contenido independiente del IDE
-│   ├── rules/               # 12 steering rules
+│   ├── rules/               # 13 steering rules
 │   ├── agents/              # 2 agent prompts (sdd-build, sdd-plan)
 │   └── templates/           # 3 spec templates (requirements, design, tasks)
 └── adapters/                # Adaptadores por IDE (extensible)
@@ -81,7 +81,7 @@ codebase-memory-mcp config set auto_index true
 1. precheck.md — 5-step first interaction
 2. protected-files.md — archivos inmutables
 3. token-optimization.md — memory-first, verbosidad
-4. tool-protocol.md — CUANDO usar cada MCP
+4. tool-protocol.md — checkpoints MCP obligatorios, write protocol de server-memory, codebase-memory antes de grep
 5. azure-devops-workflow.md — CMMI, WI hierarchy, flujos feature vs bug vs corte
 6. git-conventions.md — branch naming, conventional commits
 7. workflow-router.md — HARD GATES, lifecycle detection, routing
@@ -89,7 +89,8 @@ codebase-memory-mcp config set auto_index true
 9. artifact-storage.md — que se commitea, que no, que vive en ADO
 10. change-propagation.md — matrix upstream→downstream, anti-flip-flop
 11. spec-structure-gate.md — bloqueos automaticos
-12. qa-corte-workflow.md — ciclos de testing QA (cortes), detección automática, priorización de bugs
+12. qa-corte-workflow.md — ciclos de testing QA (cortes), releases a QA y prod, semver
+13. bug-fix-protocol.md — fixes con evidencia: investigar, reproducir, impacto, verificar, deploy DEV/QA, aprender
 
 ## HARD GATES (non-negotiable)
 
@@ -115,5 +116,5 @@ El usuario no ejecuta comandos explicitos. El agente:
 6. Repite
 
 ### Feature: requirement → design → tasks → impl → test → PR
-### Bug: bug → analizar → fix → test → PR
+### Bug: investigar → reproducir (test que falla) → impacto → fix → verificar → evidencia → PR → verificar deploy DEV/QA → memoria
 ### QA Corte: detectar corte activo → priorizar bugs → fix bugs → esperar QA

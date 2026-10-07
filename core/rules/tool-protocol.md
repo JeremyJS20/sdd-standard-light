@@ -1,61 +1,119 @@
-# Tool Protocol — WHEN to use each MCP (automatic, without user asking)
+# Tool Protocol — MANDATORY MCP usage (automatic, without user asking)
 
 > The agent knows when to use each tool WITHOUT the user telling it.
-> The user NEVER says "use context7" or "use playwright". The agent knows by context.
+> The user NEVER says "use codebase-memory" or "save to memory". The agent does it by itself.
+> server-memory and codebase-memory are NOT optional helpers — they are MANDATORY checkpoints.
 
-## MCPs and when to use them automatically
+## Mandatory checkpoints
 
-### server-memory → ALWAYS FIRST
-- **When**: at the start of any session, before reading files
-- **What to load**: Decisions (technical decisions), Conventions (naming, patterns), Corrections (past errors)
-- **When to save**: after each technical decision, after discovering a convention, after correcting an error
-- **What NOT to do**: DO NOT read files if the info is already in memory. DO NOT repeat decisions from memory.
+These calls are REQUIRED at these moments. Skipping them is a protocol violation.
 
-### codebase-memory → BEFORE grep/glob (MANDATORY)
-- **When**: searching for code, finding callers of a function, tracing dependencies, understanding architecture, verifying code presence in precheck
-- **What to do**: search_graph (find functions/classes), trace_path (callers/callees), get_code_snippet (read source), query_graph (complex patterns), get_architecture (project overview)
-- **What NOT to do**: DO NOT use grep if codebase-memory can find it. DO NOT use glob if codebase-memory knows the structure. DO NOT use glob/grep to verify code presence in precheck — use get_architecture FIRST.
-- **If codebase-memory does not have the project indexed**: warn and use grep as fallback
-- **This is MANDATORY**: even in precheck, codebase-memory is used BEFORE any glob/grep call
+| Moment | MCP | Required call | Must show to user |
+|--------|-----|---------------|-------------------|
+| Session start | server-memory | `read_graph` or `search_nodes` (project, module) | "🧠 Memoria: N entidades (X Decisions, Y Corrections, Z BugFixes)" or "vacía" |
+| Session start | codebase-memory | `list_projects` / `index_status` → index if missing or stale | "🗺️ Grafo: indexado (N nodos)" or "indexando…" |
+| Before reading any source file | codebase-memory | `search_graph` → `get_code_snippet` | — |
+| Before changing a function/component | codebase-memory | `trace_path(direction="inbound")` | List of callers |
+| Before fixing a bug | server-memory | `search_nodes` for module → Corrections, BugFixes | Applicable memory or "none" |
+| After a technical decision | server-memory | `create_entities` (Decision) | "🧠 Guardado: Decision [name]" |
+| After fixing a bug | server-memory | `create_entities` (BugFix) | "🧠 Guardado: BugFix AB#XXXX" |
+| After a correction / Reopen / user correction | server-memory | `create_entities` (Correction) | "🧠 Guardado: Correction [name]" |
+| After discovering a convention | server-memory | `create_entities` (Convention) | "🧠 Guardado: Convention [name]" |
+| Before ending the session | server-memory | `add_observations` with session summary on active AB# | — |
 
-### context7 → library/framework docs
-- **When**: need documentation for a library (React, Next.js, Prisma, Express, Tailwind, etc.)
-- **How**: first resolve-library-id (get the ID), then query-docs (search specific docs)
-- **What NOT to do**: DO NOT use context7 to search project code. DO NOT use context7 for things you already know.
-- **Example**: user asks "implement JWT auth in Express" → context7 for express-jwt docs
+## server-memory → ALWAYS FIRST, ALWAYS WRITE BACK
 
-### sequential-thinking → complex problems
-- **When**: architecture, complex debugging, planning large features, dependency analysis
-- **What NOT to do**: DO NOT use for simple things (change a string, add a field). DO NOT use if the solution is obvious.
--/E: user asks "design architecture for a settlement system" → sequential-thinking step by step
+### Read protocol (session start and before each task)
+1. `search_nodes` with: project name, module name, AB# in context
+2. `open_nodes` on relevant results
+3. Apply what you find: do NOT re-discover a convention, do NOT repeat a corrected mistake, do NOT contradict a recorded decision without new information (anti-flip-flop)
+4. Report what was loaded (see table above). If empty: say so — empty memory is normal on first sessions, NOT a reason to stop using it
 
-### azure-devops → tasks, bugs, sprints, PRs, pipelines
-- **When**: at session start (see assigned items), read work item, create branch, update WI, create PR, trigger pipeline
-- **Automatic at start**: read assigned items from current sprint and show them
-- **What NOT to do**: DO NOT create work items (developer receives, does not report). DO NOT close WIs without approval.
-- **Flow**: read WI → create branch → implement → create PR → update WI (all with approval)
+### Write protocol (the part most often skipped)
+Memory is only useful if it is written. The agent MUST write at the moments in the checkpoint table.
 
-### github → PRs, Actions on GitHub (dual CI/CD)
-- **When**: if project has dual CI/CD (Azure DevOps + GitHub), create PR on GitHub, view Actions
-- **What>### playwright → E2E, browser automation, screenshots
-- **When**: after implementing (smoke tests), E2E testing, visual regression, UI screenshots
-- **Automatic**: after deploy to dev, run smoke tests with playwright
-- **What NOT to do**: DO NOT use for unit tests. DO NOT use for API tests (use postman or curl).
+Entity types and required observations:
 
-### stitch → generate UI/design from text
-- **When**: designing new UI screens, generating design system, creating screen variants
-- **What NOT to do**: DO NOT use for backend. DO NOT use for non-UI things. DO NOT use if user does not want UI generation.
+| Entity type | Name format | Observations (one fact per observation) |
+|-------------|-------------|------------------------------------------|
+| `Decision` | `decision-<topic>` | what was decided · why · alternatives rejected · date · AB# |
+| `Convention` | `convention-<topic>` | the pattern · where it applies · example file |
+| `Correction` | `correction-<topic>` | what was wrong · why it happened · correct approach · AB# |
+| `BugFix` | `bugfix-AB#XXXX` | module · root cause · fix summary · files changed · tests added · risk level |
+| `Module` | `module-<name>` | purpose · key files · known fragile areas · related BugFixes |
+
+Relations (`create_relations`):
+- `BugFix` → `affects` → `Module`
+- `Correction` → `corrects` → `BugFix` / `Decision`
+- `BugFix` → `regression_of` → `BugFix` (when a fix broke something that was fixed before)
+
+Rules:
+- One fact per observation — short, specific, searchable
+- Include the AB# whenever there is one
+- NEVER store secrets, PATs, passwords, personal data
+- If an entity exists → `add_observations`, do NOT create a duplicate
+
+## codebase-memory → BEFORE grep/glob/reading files (MANDATORY)
+
+### Index check (session start)
+1. `list_projects` → is the current repo indexed?
+2. Not indexed → `index_repository` (tell the user it is indexing)
+3. Indexed → `index_status` / `detect_changes` → if stale (new commits since last index) → re-index
+4. NEVER silently fall back to grep because the project is not indexed — index it
+
+### Usage
+| Need | Call |
+|------|------|
+| Find a function, class, component, route | `search_graph(name_pattern=...)` |
+| Read source of a symbol | `get_code_snippet(qualified_name=...)` — NOT reading the whole file |
+| Who calls this? (impact analysis) | `trace_path(direction="inbound")` |
+| What does this call? | `trace_path(direction="outbound")` |
+| Complex patterns | `query_graph` (Cypher) |
+| Project overview | `get_architecture` |
+| Text search inside code | `search_code` |
+
+### When grep/glob IS allowed
+- String literals, error messages, config values, non-code files (Dockerfile, YAML, .env.example, SQL scripts)
+- codebase-memory returned no results → state it explicitly: "codebase-memory: sin resultados para X → fallback grep"
+- Never as the first option for code discovery
+
+## azure-devops → work items, PRs, pipelines
+- **Session start**: read assigned items in current sprint + active cortes (see `qa-corte-workflow.md`)
+- **Before working an AB#**: read WI + ALL linked WIs
+- **Before fixing a bug**: search resolved Bugs in the same area (see `bug-fix-protocol.md` Phase 1)
+- **After PR**: link PR to WI, move to Fixed (with approval)
+- NEVER create work items (developer receives, does not report). NEVER close WIs without approval
+
+## sequential-thinking → complex problems
+- **When**: root cause not obvious, architecture, impact analysis with risk MEDIO/ALTO, multi-step planning
+- NOT for trivial changes
+
+## context7 → library/framework docs
+- **When**: need docs for an external library (resolve-library-id → query-docs)
+- NOT for project code. NOT for things you already know
+
+## playwright → E2E, smoke tests
+- **When**: UI bug repro (Phase 2), UI regression (Phase 5), smoke test in DEV/QA (Phase 7)
+- NOT for unit tests or pure API tests
+
+## github → PRs, Actions (dual CI/CD)
+- **When**: project hosts code or CI on GitHub (PRs, Actions status, pipeline verification)
+
+## stitch → UI generation
+- **When**: designing new UI screens or design systems. NOT for backend
 
 ## Priority order for finding information
+1. **server-memory** — decisions, conventions, corrections, past bug fixes
+2. **codebase-memory** — code structure, symbols, callers
+3. **azure-devops** — requirements, linked WIs, resolved bugs
+4. **git history** — `git log`, `git blame` on affected files
+5. **Read project files** — only what memory and the graph could not answer
+6. **context7** — external library docs
 
-1. **server-memory** — decisions, conventions, corrections (fastest, already in context)
-2. **code3. **Read project files** — when memory and codebase-memory do not have the answer
-4. **context7** — external library docs (when you need docs for something external)
-5. **azure-devops** — work items, specs, wiki (when you need info from the requirement)
-
-## Tool discipline rules
-- NEVER use 3 MCPs for the same task if 1 suffices
+## Tool discipline
+- NEVER skip a mandatory checkpoint
+- NEVER use grep for code discovery before codebase-memory
+- NEVER finish a task that produced a decision, fix or correction without writing it to server-memory
+- NEVER call azure-devops without an AB# or a sprint/corte query purpose
 - NEVER call context7 if you already know the answer
 - NEVER call playwright if there is no UI to test
-- NEVER call azure-devops if there is no AB# in context
-- ALWAYS use server-memory first before any other tool

@@ -19,10 +19,13 @@ If an action violates a gate, STOP and notify the human.
 ## On startup (automatic)
 1. Run precheck (6 mandatory steps)
 2. If precheck Step 5 fails (no code): STOP. Do NOT proceed. Tell user to install SDD in the codebase repo.
-3. Load server-memory (decisions, conventions, corrections)
-4. If there is an AB# in context, read the WI from Azure DevOps automatically
-5. Detect type: Feature → create design + tasks. Bug → direct fix.
-6. Detect phase of work and proceed
+3. **server-memory** (MANDATORY): load Decisions, Conventions, Corrections, BugFixes → report "🧠 Memoria: …"
+4. **codebase-memory** (MANDATORY): verify index, index/re-index if missing or stale → report "🗺️ Grafo: …"
+5. If there is an AB# in context, read the WI from Azure DevOps automatically
+6. Detect type: Feature → create design + tasks. Bug → `bug-fix-protocol.md`.
+7. Detect phase of work and proceed
+
+> MCP checkpoints are defined in `tool-protocol.md`. Skipping one is a protocol violation.
 
 ## Feature flow (developer receives requirement, creates design + tasks)
 1. **Detect entry point:**
@@ -72,18 +75,29 @@ If an action violates a gate, STOP and notify the human.
 12. PROPOSE: "All tasks complete. Tests passed. I will create the PR" → wait for approval
 13. Create PR in ADO, link WI, move WI to Fixed
 
-## Bug flow (developer receives bug directly, no design or tasks)
-1. Read WI from ADO → get bug (title, description, repro steps, severity)
-   - Read ALL linked WIs: Data Dictionary, Structure, Business Rule
+## Bug flow (follows `bug-fix-protocol.md` — evidence-based, no regressions)
+> A bug is NOT fixed until there is evidence. NEVER declare "fixed" based on reasoning alone.
+
+1. **Investigate** (Phase 1) — BEFORE touching code:
+   - azure-devops: WI + repro steps + ALL linked WIs + resolved Bugs in the same module
+   - server-memory: `search_nodes` for the module → Corrections, BugFixes
+   - codebase-memory: `search_graph` → `get_code_snippet` (NOT grep)
+   - git: `git log` / `git blame` on affected files → was this a regression?
+   - Present analysis: síntoma, causa raíz, origen, bugs relacionados, memoria aplicable
 2. PROPOSE: "I will create branch fix/AB#id-description" → wait for approval
 3. Create branch, move WI to In Progress
-4. Analyze bug using codebase-memory and sequential-thinking
-5. PROPOSE: "The bug is in [file:line]. I will change: [diff]" → wait for approval
-6. Implement fix
-7. PROPOSE: "I will run the tests" → wait for approval
-8. Run tests, show results
-9. PROPOSE: "Tests passed. I will create the PR in ADO" → wait for approval
-10. Create PR, link WI, move WI to Fixed
+4. **Reproduce** (Phase 2): write a failing test (unit, or Playwright for UI) → confirm it fails. Cannot reproduce → STOP and ask
+5. **Impact** (Phase 3): codebase-memory `trace_path(direction="inbound")` → list callers, affected features, risk BAJO/MEDIO/ALTO → present BEFORE fixing
+6. **Fix** (Phase 4): PROPOSE minimal root-cause diff → wait for approval → implement. No refactoring
+7. **Verify** (Phase 5): failing test now passes + module suite + lint; callers' tests if risk MEDIO/ALTO; Playwright if UI; validate against acceptance criteria
+8. **Evidence report** (Phase 6): build the report → PROPOSE PR with the report in the body → wait for approval
+9. Create PR, link WI, move WI to Fixed
+10. **Deployment verification** (Phase 7): DEV after merge to develop; QA after release/corte merged to qa (branch contains commit, pipeline OK, env parity, smoke test)
+11. **Learn** (Phase 8): write `BugFix` to server-memory (+ `Correction` if regression)
+
+### If QA reopens the bug
+- Write `Correction` to server-memory (what the previous fix missed)
+- Restart from step 1 — NEVER patch on top without re-analysis
 
 ## QA Corte flow (bugs from active testing cut)
 > See `qa-corte-workflow.md` for full detection rules and corte structure.
@@ -124,13 +138,14 @@ When human requests promotion to production:
 9. **Sync branches**: merge main → develop to keep in sync
 
 ## Tool routing (automatic, without user asking)
+- Search/read code → codebase-memory `search_graph` + `get_code_snippet` (BEFORE grep or reading files)
+- Before changing a function → codebase-memory `trace_path(direction="inbound")`
+- Remember decision / fix / correction / convention → server-memory `create_entities` (MANDATORY, see `tool-protocol.md` §Write protocol)
 - Need library docs → context7
-- Complex problem → sequential-thinking
-- E2E testing → playwright
+- Complex problem / root cause not obvious → sequential-thinking
+- E2E testing, UI repro, smoke test DEV/QA → playwright
 - Design UI → stitch
 - Update ADO → azure-devops
-- Remember decision → server-memory
-- Search code → codebase-memory (before grep)
 
 ## Rules
 - DO NOT execute without approval — propose every action, wait, execute
