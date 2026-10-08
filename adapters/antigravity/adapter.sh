@@ -36,6 +36,9 @@ done
 echo "   Generating Antigravity (.agents/) structure..."
 
 PROJECT_ROOT="$(pwd)"
+if command -v cygpath >/dev/null 2>&1; then
+  PROJECT_ROOT="$(cygpath -m "$PROJECT_ROOT")"
+fi
 
 # --- Detect codebase-memory binary ---
 CBM_BIN=""
@@ -44,71 +47,69 @@ if [ -f "$HOME/.local/bin/codebase-memory-mcp.exe" ]; then
 elif [ -f "$HOME/.local/bin/codebase-memory-mcp" ]; then
   CBM_BIN="$HOME/.local/bin/codebase-memory-mcp"
 fi
+if [ -n "$CBM_BIN" ] && command -v cygpath >/dev/null 2>&1; then
+  CBM_BIN="$(cygpath -m "$CBM_BIN")"
+fi
 
 # --- 1. Create directory structure ---
 mkdir -p .agents/agents .agents/skills
 
-# --- 2. Generate mcp_config.json (flat format) ---
-ADO_ENV=""
-if [ -n "$PAT64" ]; then
-  ADO_ENV="\"PERSONAL_ACCESS_TOKEN\": \"$PAT64\","
-fi
+# --- 2. Generate mcp_config.json (bulletproof valid JSON via node) ---
+node - "$ORG" "$PROJECT" "$PAT64" "$PROJECT_ROOT" "$CBM_BIN" << 'NODE_EOF'
+const fs = require('fs');
+const [org, project, pat64, projectRoot, cbmBin] = process.argv.slice(2);
 
-CBM_ENTRY=""
-if [ -n "$CBM_BIN" ]; then
-  CBM_ENTRY="\"codebase-memory-mcp\": {\"command\": \"$CBM_BIN\", \"args\": []},"
-fi
-
-cat > .agents/mcp_config.json << MCP_EOF
-{
-  "mcpServers": {
+const config = {
+  mcpServers: {
     "azure-devops": {
-      "command": "npx",
-      "args": ["-y", "@azure-devops/mcp", "$ORG", "--authentication", "pat"],
-      "env": {
-        ${ADO_ENV}
-        "AZURE_DEVOPS_DEFAULT_PROJECT": "$PROJECT"
+      command: "npx",
+      args: ["-y", "@azure-devops/mcp", org, "--authentication", "pat"],
+      env: {
+        ...(pat64 ? { PERSONAL_ACCESS_TOKEN: pat64 } : {}),
+        AZURE_DEVOPS_DEFAULT_PROJECT: project
       }
     },
     "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+      command: "npx",
+      args: ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     },
     "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"]
+      command: "npx",
+      args: ["-y", "@upstash/context7-mcp@latest"]
     },
     "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {}
+      command: "npx",
+      args: ["-y", "@modelcontextprotocol/server-github"],
+      env: {}
     },
     "server-memory": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "env": {
-        "MEMORY_FILE_PATH": "$PROJECT_ROOT/.sdd-memory/memory.jsonl"
+      command: "npx",
+      args: ["-y", "@modelcontextprotocol/server-memory"],
+      env: {
+        MEMORY_FILE_PATH: `${projectRoot}/.sdd-memory/memory.jsonl`
       }
     },
     "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"]
+      command: "npx",
+      args: ["-y", "@playwright/mcp@latest"]
     },
     "stitch": {
-      "command": "npx",
-      "args": ["-y", "@google/stitch-sdk"],
-      "env": {}
-    },
-    ${CBM_ENTRY}
-    "_placeholder": true
+      command: "npx",
+      args: ["-y", "@google/stitch-sdk"],
+      env: {}
+    }
   }
-}
-MCP_EOF
+};
 
-# Clean up placeholder and trailing commas
-sed -i '/"_placeholder": true/d' .agents/mcp_config.json 2>/dev/null || true
-sed -i 's/,\s*}/}/g' .agents/mcp_config.json 2>/dev/null || true
-sed -i 's/,\s*,/,/g' .agents/mcp_config.json 2>/dev/null || true
+if (cbmBin) {
+  config.mcpServers["codebase-memory-mcp"] = {
+    command: cbmBin,
+    args: []
+  };
+}
+
+fs.writeFileSync('.agents/mcp_config.json', JSON.stringify(config, null, 2) + '\n');
+NODE_EOF
 
 echo "   OK mcp_config.json generated (7 MCPs + codebase-memory-mcp if installed)"
 
