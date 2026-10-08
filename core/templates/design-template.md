@@ -8,6 +8,9 @@
   TEMPLATE USAGE GUIDE:
   - Sections marked "ALWAYS" must appear in every design document.
   - Sections marked "CONDITIONAL" should be included only if applicable.
+  - LANGUAGE RULE: Technical identifiers (code, SQL, APIs) remain in English/code format,
+    while domain explanations, business logic context, and architectural justifications match
+    the project's primary business language.
   - Content inside sections is EXEMPLARY — analyze the actual requirements and generate
     contextual content. Do NOT copy placeholder items verbatim.
   - Items in [brackets] are placeholders to be replaced with real data.

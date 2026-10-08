@@ -16,6 +16,21 @@
 
 ---
 
+## Language Governance: Framework vs Domain Specifications
+
+To eliminate linguistic confusion between framework standards and business domains:
+
+1. **SDD Framework & Tooling Layer (`sdd-standard/`, `.agents/`, rules, templates)**:
+   - Authored strictly in **English**.
+   - Ensures universal compatibility with global LLM reasoning, developer tooling, and cross-platform standards.
+
+2. **Project Domain & Feature Specifications (`specs/`, `docs/modules/`)**:
+   - Authored in the **primary business language of the project stakeholders and regulatory jurisdiction**.
+   - If the project operates in a Spanish-speaking domain (e.g., Dominican Republic Payroll, TSS Ley 87-01, DGII, Código de Trabajo), the User Stories, Acceptance Criteria, business formulas, and domain documentation MUST be written in **Spanish**.
+   - **NEVER** force English translations onto local legal terminology, tax concepts, government agency standards (e.g., TSS, DGII, NCF, Regalía), or stakeholder User Stories. The template scaffolding is in English; the domain substance is in the stakeholder's language.
+
+---
+
 ## Mode 1: Forward Spec (New Feature)
 
 When creating a new feature from scratch or from an ADO User Story:

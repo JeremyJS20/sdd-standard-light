@@ -8,6 +8,11 @@
   TEMPLATE USAGE GUIDE:
   - Sections marked "ALWAYS" must appear in every requirements document.
   - Sections marked "CONDITIONAL" should be included only if applicable.
+  - LANGUAGE RULE: While this template structure and guide are in English, the actual
+    requirements content (User Stories, Acceptance Criteria, Business Rules) MUST be
+    written in the project's primary business domain language (e.g. Spanish for Dominican
+    Payroll, English for international products). Do NOT force English translation onto
+    local domain business requirements.
   - Content inside sections is EXEMPLARY — analyze the actual feature and generate
     contextual content. Do NOT copy placeholder items verbatim.
   - Items in [brackets] are placeholders to be replaced with real data.
