@@ -22,6 +22,7 @@
 | 13 | Create downstream artifact (design.md / tasks.md / code) while upstream artifact header still contains "[pending]" | BLOCK |
 | 14 | Cascade a single approval across multiple artifacts, or stamp approval on an artifact not explicitly named by the user | BLOCK |
 | 15 | Corrupt file encoding or introduce mojibake via non-UTF-8 tools (e.g. raw PowerShell redirection) | BLOCK |
+| 16 | Update docs/modules/{module}.md without synchronizing all 3 master diagrams (State Machine, Component Flow, ERD) or leaving corrupted table rows | BLOCK |
 
 ## What happens when a block is triggered
 1. STOP immediately — do not proceed
@@ -45,6 +46,7 @@
 - Gate 13: Stamp the upstream artifact's header with the formal human approval (`> ✅ Approved by: [Approver Name / Role] · [YYYY-MM-DD]`) BEFORE creating or proposing the downstream artifact. Never leave `[pending]` in an approved artifact.
 - Gate 14: Obtain explicit, independent approval for EACH artifact individually. Approval for requirements.md NEVER authorizes design.md. Approval for design.md NEVER authorizes tasks.md. Colloquial words ("dale", "continúa", "ok") apply ONLY to the single artifact currently under review.
 - Gate 15: Restore clean UTF-8 encoding and use safe tools (replace_file_content, write_to_file, or Node.js UTF-8) for all file mutations. Ban raw PowerShell stream redirection.
+- Gate 16: Fully synchronize all 3 master diagrams (Section 3.1 stateDiagram-v2, Section 3.2 flowchart, Section 4 erDiagram) in docs/modules/{module}.md to reflect certified sub-module changes (new sub-states, engines/resolvers, entities), and eliminate empty lines or malformed rows in Markdown tables.
 
 ## What NEVER to do
 - DO NOT bypass gates even if the user says "just do it"
