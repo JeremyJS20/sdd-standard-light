@@ -4,16 +4,37 @@
 > Templates are MANDATORY. The agent NEVER invents spec structure.
 
 ## Directory structure
-```
+
+### A. Single Feature
+```text
 specs/
 ├── _templates/                    # Templates (do not modify, reference only)
 │   ├── requirements-template.md
 │   ├── design-template.md
 │   └── tasks-template.md
 └── AB#5678-export-excel/          # Feature folder (named after WI)
-    ├── requirements.md            # Brought from ADO, based on template
-    ├── design.md                  # Created by developer, based on template
-    └── tasks.md                   # Created by developer, based on template
+    ├── requirements.md            # Based on template
+    ├── design.md                  # Based on template
+    └── tasks.md                   # Based on template
+```
+
+### B. Modular Macro-Feature / Full Domain Module
+When a module covers multiple distinct workflows, screens, or regulatory domains (e.g. Payroll, Billing), it SHALL be decomposed into modular sub-specs:
+```text
+specs/payroll/
+├── 01-cycles-and-calculation/
+│   ├── requirements.md
+│   ├── design.md
+│   └── tasks.md
+├── 02-adjustments-and-overtime/
+│   ├── requirements.md
+│   ├── design.md
+│   └── tasks.md
+├── 03-bank-disbursement/
+│   ├── requirements.md
+│   ├── design.md
+│   └── tasks.md
+└── ...
 ```
 
 ## Template usage (MANDATORY)

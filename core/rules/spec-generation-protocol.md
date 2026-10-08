@@ -128,10 +128,53 @@ When adding a new sub-feature to an already functioning module (e.g., adding *Di
 
 ---
 
+## Spec Granularity & Macro-Feature Decomposition Protocol (Anti-Monolith Rule)
+
+### When to Decompose a Macro-Feature
+A specification represents a coherent, reviewable, and testable unit of functionality.
+When documenting or planning a **Macro-Feature / Full Domain Module** (e.g. *Nómina Completa*, *Facturación Electrónica*, *Gestión de Inventario*), **DO NOT create a single monolithic `requirements.md`** mixing multiple unrelated business sub-domains.
+
+Criteria requiring decomposition:
+- The module covers more than 2 distinct business workflows or regulatory domains (e.g. TSS vs DGII vs ACH Bancario).
+- The module spans multiple distinct frontend screens or URL paths.
+- The module has separate state machines or independent database entity clusters.
+
+### Modular Spec Structure for Macro-Features
+```text
+specs/{module-name}/
+├── 01-{sub-feature-a}/
+│   ├── requirements.md
+│   ├── design.md
+│   └── tasks.md
+├── 02-{sub-feature-b}/
+│   ├── requirements.md
+│   ├── design.md
+│   └── tasks.md
+└── ...
+```
+
+### Execution Strategy: One Sub-feature at a Time (Hard Gate 2)
+1. **Step 0 — Propose Modular Breakdown**: The agent lists all proposed sub-features with clear boundaries and asks for approval of the decomposition.
+2. **Execute Sub-feature by Sub-feature**: Start with Sub-feature 1. Follow the full lifecycle (`requirements.md` ➔ approval ➔ `design.md` ➔ approval ➔ `tasks.md`).
+3. NEVER generate specs for subsequent sub-features until the active one is approved.
+
+---
+
+## Explicit Human Approval Protocol (Hard Gate 1 Enforcement)
+
+- **Approval MUST BE EXPLICIT**: The agent SHALL NEVER assume approval based on general continuation, follow-up questions, or feedback comments.
+- **Valid Approval Keywords**: "Aprobado", "Acepto", "Proceder con el diseño", "Adelante con tasks", "LGTM".
+- **Invalid Signals**: "continúa", "¿por qué hiciste X?", "¿qué opinas de Y?", or silence.
+- If the human asks a question, points out a bug, or raises a concern: **STOP IMMEDIATELY**. Address the question, provide clarifications, and **WAIT** for explicit approval. **NEVER advance to the next artifact (`design.md` or `tasks.md`) without explicit confirmation.**
+
+---
+
 ## What the Agent NEVER Does
 - NEVER skips `requirements.md` to start coding immediately because "it seems simple".
-- NEVER generates `design.md` before `requirements.md` is approved.
-- NEVER generates `tasks.md` before `design.md` is approved.
-- NEVER starts implementation before `tasks.md` is approved.
+- NEVER generates `design.md` before `requirements.md` is explicitly approved.
+- NEVER generates `tasks.md` before `design.md` is explicitly approved.
+- NEVER starts implementation before `tasks.md` is explicitly approved.
 - NEVER invents sections outside the official templates.
-- NEVER puts Bug IDs as the primary Work Item or identity of a spec. A Feature is not a collection of bugs (Bug != Feature).
+- NEVER puts Bug IDs as the primary Work Item or identity of a spec (Bug != Feature).
+- NEVER dumps an entire multi-workflow macro-feature into a single monolithic spec file without modular decomposition.
+- NEVER advances to the next phase when the user asks a question or reports an issue.
