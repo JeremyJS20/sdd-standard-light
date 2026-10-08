@@ -47,37 +47,37 @@ Read project configuration:
   - If exists: note "Functional Packages detected — agent will use these as PRIMARY entry point for features"
 - If stack not detected: warn "Stack not detected. Specify your stack manually."
 
-## Step 5: Code presence verification
-Verify the repo contains actual application code, not just SDD config files.
+## Step 5: Code presence & lifecycle detection (Brownfield vs Greenfield)
+Verify if the repo contains existing application code or is a new project from scratch.
 
 **Use codebase-memory FIRST** — do NOT use glob/grep before codebase-memory.
 
 1. If codebase-memory IS available (Step 3 OK):
    - Call `codebase-memory get_architecture` for the current project
-   - If codebase-memory returns nodes (functions, classes, files) → code present → OK
-   - If codebase-memory is empty but source files exist → warn "Code exists but is not indexed in codebase-memory. Run index_repository."
+   - If codebase-memory returns nodes (functions, classes, files) → **Brownfield project** (existing code present) → OK
+   - If codebase-memory is empty but source files exist → warn "Code exists but is not indexed in codebase-memory. Run index_repository." → **Brownfield project**
 2. If codebase-memory is NOT available (Step 3 warned):
    - Fall back to glob for source files: `*.py`, `*.ts`, `*.js`, `*.go`, `*.rs`, `*.dart`, `*.java`, `*.cs`, `*.php`, `*.rb`, `*.kt`, `*.swift`
    - Check source directories: `src/`, `lib/`, `app/`, `cmd/`, `internal/`, `pkg/`, `tests/`, `test/`
-   - This is the ONLY case where glob is acceptable before codebase-memory
-3. If codebase-memory is empty AND no source files found → **BLOCK**. Tell the user:
-   > "No application code detected in this repo. This appears to be an SDD-only workspace.
-   > To work on bugs or features, install SDD inside your codebase repo:
-   >   cd /path/to/your/codebase
-   >   bash sdd-init.sh
-   > DO NOT offer to analyze bugs, propose fixes, or continue with any work."
+   - If source files found → **Brownfield project** (existing code present) → OK
+3. If codebase-memory is empty AND no source files found:
+   - Detect as **🌱 Greenfield Project (Project from scratch)**:
+     - The workspace is ready to bootstrap a new application from scratch using SDD!
+     - Report: "🌱 Modo Greenfield detectado: proyecto nuevo desde cero. Listo para definir arquitectura inicial, especificaciones y Wave 0 (scaffolding)."
+     - **DO NOT BLOCK!** Route to Greenfield Project Inception flow (see `workflow-router.md`).
+     - Allowed in Greenfield: project architecture, stack selection, Forward specs, Wave 0 scaffolding execution (with approval).
+     - Prohibited in Greenfield: bug fixes (no code exists to fix).
 
-EXCLUDE from this check: `.opencode/`, `.sdd-memory/`, `specs/`, `.sdd-config.json`, `opencode.json`, `sdd-init.sh`
+EXCLUDE from this check: `.opencode/`, `.agents/`, `.kiro/`, `.claude/`, `.sdd-memory/`, `specs/`, `.sdd-config.json`, `opencode.json`, `sdd-init.sh`
 
 ## Step 6: Readiness verification
 Verify all above is OK:
 - Memory: OK or empty (first session) → OK
 - Git identity: OK → OK. If not → BLOCK
 - MCP health: server-memory OK → OK. codebase-memory and azure-devops: warn but do not block
-- Project type: detected → OK. If not → warn
-- Code presence: code found → OK. If not → **BLOCK** (do not offer work options)
-- If all OK: "Precheck completed. Ready to proceed."
-- If something fails: "Precheck failed at step X. [explanation]. Cannot proceed until resolved."
+- Project type: detected (Brownfield) OR Greenfield (new project) → OK
+- If all OK: "Precheck completed. Ready to proceed." (indicate Brownfield or Greenfield)
+- If something fails (e.g. no git identity): "Precheck failed at step X. [explanation]. Cannot proceed until resolved."
 
 ## What NEVER to do during precheck
 - DO NOT present "explore codebase" as an option to the user — that is automatic

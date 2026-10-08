@@ -18,7 +18,7 @@ If an action violates a gate, STOP and notify the human.
 
 ## On startup (automatic)
 1. Run precheck (6 mandatory steps)
-2. If precheck Step 5 fails (no code): STOP. Do NOT proceed. Tell user to install SDD in the codebase repo.
+2. Lifecycle mode check: if Greenfield (no code), allow executing Wave 0 scaffolding tasks and bootstrapping with explicit human approval. Prohibit bug fixes.
 3. **server-memory** (MANDATORY): load Decisions, Conventions, Corrections, BugFixes → report "🧠 Memoria: …"
 4. **codebase-memory** (MANDATORY): verify index, index/re-index if missing or stale → report "🗺️ Grafo: …"
 5. If there is an AB# in context, read the WI from Azure DevOps automatically

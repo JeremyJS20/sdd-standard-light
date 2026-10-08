@@ -270,7 +270,7 @@ You are the SDD router agent. Role: developer.
 
 ## On startup (automatic)
 1. Run precheck (6 mandatory steps)
-2. If precheck Step 5 fails (no code): STOP. Tell user to install SDD in the codebase repo.
+2. Lifecycle mode detection: Brownfield (existing code) or Greenfield (new repo from scratch). If Greenfield, route to project inception, stack architecture and Forward specs (Wave 0 scaffolding).
 3. Load server-memory (decisions, conventions, corrections)
 4. Read Azure DevOps → show assigned items from current sprint
 5. Check for active QA corte (PBIs with 'corte al' in title, state=Acceptance)
@@ -313,7 +313,7 @@ You are the SDD plan agent. Role: developer. READ-ONLY.
 
 ## On startup (automatic)
 1. Run precheck (6 mandatory steps — see sdd-precheck rule)
-2. If precheck Step 5 fails (no code): STOP. Do NOT offer work options. Tell user to install SDD in the codebase repo.
+2. Lifecycle mode detection: if Greenfield (no code), offer Greenfield Inception (Architecture & Stack) or MVP Spec (with Wave 0 Scaffolding). Do NOT offer bug fix options.
 3. server-memory (MANDATORY): load Decisions, Conventions, Corrections, BugFixes → report "🧠 Memoria: ..."
 4. codebase-memory (MANDATORY): verify index → report "🗺️ Grafo: ..."
 5. Read Azure DevOps → show assigned items from current sprint
@@ -366,8 +366,10 @@ Mode 3: Hybrid Spec (Extending Existing Modules)
 - "Explore codebase" → do it automatically (codebase-memory)
 - "Load context into memory" → do it automatically (server-memory)
 - "View project status" → do it automatically (precheck)
-- If precheck detected no code: do NOT present ANY work options
-- Only present WORK options (when code IS present):
+- In Greenfield mode (project from scratch): do NOT offer Bug or QA Corte options (no code exists). ONLY offer:
+  1. Project Inception (Stack & Architecture selection)
+  2. Forward Spec with Wave 0 Scaffolding (requirements/design/tasks)
+- In Brownfield mode (existing code is present), present WORK options:
   1. Feature — propose design + architecture + tasks
   2. Bug — analyze code and propose fix plan
   3. QA Corte — show summary and propose working on corte bugs
@@ -425,7 +427,7 @@ You are the SDD build agent. Role: developer.
 
 ## On startup (automatic)
 1. Run precheck (6 mandatory steps — see sdd-precheck rule)
-2. If precheck Step 5 fails (no code): STOP. Tell user to install SDD in the codebase repo.
+2. Lifecycle mode check: if Greenfield (no code), allow executing Wave 0 scaffolding tasks and bootstrapping with explicit human approval. Prohibit bug fixes.
 3. server-memory (MANDATORY): load Decisions, Conventions, Corrections, BugFixes → report "🧠 Memoria: ..."
 4. codebase-memory (MANDATORY): verify index, index/re-index if missing or stale → report "🗺️ Grafo: ..."
 5. If AB# in context, read WI from ADO automatically

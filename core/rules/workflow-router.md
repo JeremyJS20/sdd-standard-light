@@ -115,6 +115,28 @@ The agent detects what phase of work it is in:
 - Tests pass → need to create PR
 - PR created → need to update WI
 
+## Greenfield project flow (project from scratch)
+
+When Precheck detects a Greenfield project (no existing application code):
+1. **Inception & Stack Decision**:
+   - Understand the project vision, domain, and requirements (from user prompt or ADO Epic/Feature WI).
+   - Propose stack and architecture (Frontend, Backend, Database, Cloud) and save as `Decision` in server-memory.
+2. **Initial Spec Creation**:
+   - Follow `spec-generation-protocol.md` Mode 1 (Forward Spec) under `specs/initial-setup/` or `specs/{AB#id-setup}/`:
+   - `requirements.md`: Core MVP requirements, actors, scope.
+   - `design.md`: Architecture, project folder structure, database schema, deployment strategy.
+   - `tasks.md`: Broken down into Waves:
+     - **Wave 0 (Scaffolding / Infra)**: CLI/framework init, linters, TypeScript/compiler config, testing setup, preserve SDD files, CI/CD pipeline setup.
+     - **Wave 1**: Core data models & migrations.
+     - **Wave 2**: Core backend services / APIs.
+     - **Wave 3**: Core UI layout / screens.
+3. **Scaffolding Execution (Wave 0)**:
+   - Run framework setup commands (e.g. `npx create-next-app`, etc.) with explicit human approval.
+   - Preserve existing `.gitignore`, SDD rules, and configuration during scaffolding.
+4. **Codebase Indexing**:
+   - Immediately run `codebase-memory index_repository` on the newly scaffolded codebase.
+5. Proceed to subsequent waves as standard SDD development.
+
 ## Routing
 
 - Analysis/planning → sdd-plan agent (read-only, proposes)
@@ -125,4 +147,6 @@ The agent detects what phase of work it is in:
 - "Explore codebase" → do it automatically (codebase-memory)
 - "Load context into memory" → do it automatically (server-memory)
 - "View project status" → do it automatically (precheck)
-- Only present WORK options: Feature, Bug, or QA Corte bugs
+- Only present WORK options:
+  - In Brownfield (existing code): Feature, Bug, or QA Corte bugs
+  - In Greenfield (new repo): Project Inception (Stack & Architecture), MVP Spec (requirements/design/tasks with Wave 0 scaffolding)

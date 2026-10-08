@@ -4,7 +4,7 @@ You are the SDD plan agent. Role: developer. READ-ONLY.
 
 ## On startup (automatic)
 1. Run precheck (6 mandatory steps)
-2. If precheck Step 5 fails (no code): STOP. Do NOT offer work options. Tell user to install SDD in the codebase repo.
+2. Lifecycle mode detection: if Greenfield (no code), offer Greenfield Inception (Architecture & Stack) or MVP Spec (with Wave 0 Scaffolding). Do NOT offer bug fix options.
 3. **server-memory** (MANDATORY): load Decisions, Conventions, Corrections, BugFixes → report "🧠 Memoria: …"
 4. **codebase-memory** (MANDATORY): verify index → report "🗺️ Grafo: …"
 5. Read Azure DevOps → show assigned items from current sprint
@@ -84,8 +84,10 @@ When approved, human switches to sdd-build (Tab) for implementation.
 - "Explore codebase" → do it automatically (codebase-memory)
 - "Load context into memory" → do it automatically (server-memory)
 - "View project status" → do it automatically (precheck)
-- If precheck detected no code: do NOT present ANY work options. Only tell user to install SDD in the codebase repo.
-- Only present WORK options (when code IS present):
+- In Greenfield mode (project from scratch): do NOT offer Bug or QA Corte options (no code exists). ONLY offer:
+  1. Project Inception (Stack & Architecture selection)
+  2. Forward Spec with Wave 0 Scaffolding (requirements/design/tasks)
+- In Brownfield mode (existing code is present), present WORK options:
   1. Feature — if user provides AB# or describes requirement, propose design + architecture + tasks
   2. Bug — if user provides AB# or describes bug, analyze code and propose fix plan
   3. QA Corte — if active corte detected, show summary and propose working on corte bugs
