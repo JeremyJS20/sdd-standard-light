@@ -4,6 +4,7 @@
 > 🔄 Last Updated: [YYYY-MM-DD] · Status: [Active / Production / In Progress]
 > 👤 Domain Lead: [Product Owner / Tech Lead]
 > 📂 Scope: [Brief description of the domain, e.g. Gestión de Nómina, Deducciones de Ley TSS/ISR y Dispersión Bancaria Masiva]
+> ⚠️ **MANDATO DE CALIDAD (Hard Gate 12)**: Este documento DEBE ser redactado con máxima profundidad técnica y detalle exhaustivo. Queda estrictamente prohibido el uso de resúmenes superficiales, omitir endpoints en el catálogo, truncar entidades en el ERD o dejar reglas de negocio sin sus fórmulas matemáticas explícitas.
 
 ---
 

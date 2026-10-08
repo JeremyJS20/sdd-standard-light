@@ -4,6 +4,7 @@
 > 🔄 Last Updated: [YYYY-MM-DD] · Status: [Active / Production]
 > 👤 Data Authority: [Lead DBA / Backend Architect]
 > 🐘 Engine: PostgreSQL 16 (AWS RDS) · Multi-Tenant: [Logical / Row-Level Partitioning]
+> ⚠️ **MANDATO DE CALIDAD (Hard Gate 12)**: Este documento DEBE ser redactado con máxima profundidad técnica y detalle exhaustivo. Queda estrictamente prohibido omitir columnas, truncar esquemas con 'etc.', o colocar tablas sin sus tipos de datos SQL exactos (`NUMERIC`, `UUID`, etc.), constraints (`NOT NULL`, `CHECK`, `UNIQUE`), claves foráneas y políticas de indexing.
 
 ---
 

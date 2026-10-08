@@ -4,6 +4,7 @@
 > 🔄 Last Updated: [YYYY-MM-DD] · Status: [Draft / Approved / In Production]
 > 👤 Technical Authority: [Lead Architect / Engineering Lead]
 > 📂 Repository: [Repo Name / URL] · Stack: [Primary Technologies]
+> ⚠️ **MANDATO DE CALIDAD (Hard Gate 12)**: Este documento DEBE ser redactado con máxima profundidad técnica y detalle exhaustivo. Queda estrictamente prohibido el uso de resúmenes superficiales, placeholders ('TODO', 'TBD', 'etc.'), o diagramas genéricos sin actores ni protocolos. Cada capa debe especificar sus tecnologías y responsabilidades exactas, y cada política de seguridad su mecanismo de implementación.
 
 ---
 
