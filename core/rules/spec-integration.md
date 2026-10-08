@@ -19,7 +19,7 @@ specs/
 ```
 
 ### B. Modular Macro-Feature / Full Domain Module
-When a module covers multiple distinct workflows, screens, or regulatory domains (e.g. Payroll, Billing), it SHALL be decomposed into modular sub-specs:
+When a module covers multiple distinct workflows, screens, or regulatory domains (e.g. Payroll, Billing, Fixed Assets, Inventory), it SHALL be decomposed into modular sub-specs:
 ```text
 specs/payroll/
 ├── 01-cycles-and-calculation/
@@ -36,6 +36,10 @@ specs/payroll/
 │   └── tasks.md
 └── ...
 ```
+
+> ⚠️ **STRICT PROHIBITION (Hard Gate 11)**:
+> Creating monolithic folders such as `specs/{module}-core/`, `specs/mvp/`, or `specs/{system}/` containing a single `requirements.md` that aggregates all entities and workflows of a multi-capability system is a CRITICAL VIOLATION of Hard Gate 11.
+> The agent MUST decompose into sequential numbered sub-features (`01-...`, `02-...`), obtain approval for the breakdown, and author specs strictly one sub-feature at a time.
 
 ## Template usage (MANDATORY)
 Every spec file MUST be based on the corresponding template:

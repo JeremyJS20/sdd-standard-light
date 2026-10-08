@@ -17,7 +17,7 @@
 | 8 | Create tasks.md for a Bug (bugs don't need tasks) | BLOCK |
 | 9 | Link Bug Work Item as the parent Feature/Spec ID in requirements.md or design.md | BLOCK |
 | 10 | Advance to next spec phase (design.md / tasks.md) without explicit human approval | BLOCK |
-| 11 | Dump a multi-workflow Macro-Feature into a single monolithic spec without decomposition | BLOCK |
+| 11 | Dump a multi-workflow Macro-Feature into a single monolithic spec (e.g. *-core/, mvp/, all-in-one) without modular decomposition | BLOCK |
 | 12 | Generate superficial, brief, or placeholder-ridden documentation without exhaustive technical detail | BLOCK |
 | 13 | Create downstream artifact (design.md / tasks.md / code) while upstream artifact header still contains "[pending]" | BLOCK |
 | 14 | Cascade a single approval across multiple artifacts, or stamp approval on an artifact not explicitly named by the user | BLOCK |
@@ -41,7 +41,7 @@
 - Gate 8: Bugs don't need tasks.md — go directly to fix
 - Gate 9: Specs are ONLY for Features, Epics, or User Stories/PBIs. NEVER put Bug IDs as the primary Work Item of a spec. If no Feature/PBI exists in ADO, set "Work Item: Pending (No PBI/Feature assigned in ADO yet)". Historical bugs found in Git history belong only in a dedicated "Historical Bugs Resolved" context section.
 - Gate 10: Wait for explicit approval from the user ("Approved", "Aprobado", "Proceed"). NEVER advance if the user made a question, complaint, or continuation without explicit approval.
-- Gate 11: Decompose the macro-feature into modular sub-features under `specs/{module}/{sub-feature}/`. Propose the breakdown first and tackle one sub-feature at a time.
+- Gate 11: Stop immediately and delete/split the monolithic spec. Classify the system into domain sub-modules under `specs/{module}/01-{submodule}/`, `02-{submodule}/`, etc. Propose the decomposition breakdown to the user, obtain explicit approval, initialize `docs/modules/{module}.md`, and author requirements ONLY for Sub-module 01.
 - Gate 12: Redraft documentation with exhaustive technical depth: full DDL schemas with column types, nullability, constraints; complete API contracts with real request/response JSONs and HTTP error codes; exact mathematical formulas; and rendered Mermaid diagrams. Ban 'etc.', 'TODO', or summarized placeholders.
 - Gate 13: Stamp the upstream artifact's header with the formal human approval (`> ✅ Approved by: [Approver Name / Role] · [YYYY-MM-DD]`) BEFORE creating or proposing the downstream artifact. Never leave `[pending]` in an approved artifact.
 - Gate 14: Obtain explicit, independent approval for EACH artifact individually. Approval for requirements.md NEVER authorizes design.md. Approval for design.md NEVER authorizes tasks.md. Colloquial words ("dale", "continúa", "ok") apply ONLY to the single artifact currently under review.

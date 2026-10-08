@@ -132,15 +132,16 @@ The agent detects what phase of work it is in:
      - Based on the elicited domain, propose the optimal stack (Frontend, Backend, Database, Cloud/Infra) and folder conventions.
      - Present pros/cons and justifications.
      - On human approval, record as a `Decision` entity in `server-memory`.
-2. **Initial Spec Creation**:
-   - Follow `spec-generation-protocol.md` Mode 1 (Forward Spec) under `specs/initial-setup/` or `specs/{AB#id-setup}/`:
-   - `requirements.md`: Core MVP requirements, actors, scope.
-   - `design.md`: Architecture, project folder structure, database schema, deployment strategy.
-   - `tasks.md`: Broken down into Waves:
-     - **Wave 0 (Scaffolding / Subfolder Isolation)**: Framework init into a dedicated subfolder (`app/` or `apps/{name}/`), linters, TypeScript config, testing setup, preserve SDD root files, CI/CD pipeline setup, configure `app_dir` in `.sdd-config.json`.
-     - **Wave 1**: Core data models & migrations.
-     - **Wave 2**: Core backend services / APIs.
-     - **Wave 3**: Core UI layout / screens.
+2. **Scope Classification & Modular Decomposition (MANDATORY GATE 11)**:
+   - **Single Feature vs. Multi-Workflow System Check**: Evaluate whether the greenfield project is a single-purpose utility/tool or a multi-workflow business system (e.g. Fixed Assets, Payroll, Invoicing, ERP, E-commerce, Inventory).
+   - **Anti-Monolith Mandate**: For Multi-Workflow Systems, the agent is **STRICTLY FORBIDDEN** from dumping all MVP requirements into a single monolithic spec (e.g. `specs/initial-setup/requirements.md`, `specs/mvp/requirements.md`, or `specs/{system}-core/requirements.md`).
+   - **Protocol for Multi-Workflow Systems**:
+     1. Propose the modular sub-feature breakdown: `specs/{system}/01-{submodule}/`, `specs/{system}/02-{submodule}/`, etc.
+     2. Await explicit human approval of the modular architecture.
+     3. Initialize `docs/modules/{system}.md` documenting the full domain architecture, ERD, state machines, and capability matrix.
+     4. Scaffold Wave 0 (Application Subfolder Scaffolding in `app/`).
+     5. Author `requirements.md` ONLY for Sub-module 01 (`specs/{system}/01-{submodule}/requirements.md`).
+   - **Protocol for Single-Purpose Utilities**: Author `specs/{feature}/requirements.md` using standard template.
 3. **Scaffolding Execution (Wave 0 & Subfolder Isolation)**:
    - **Application Subfolder Isolation**: To avoid mixing SDD orchestration files (`.agents/`, `.opencode/`, `specs/`, `docs/`, `.sdd-memory/`, `.sdd-*`, `sdd-init.sh`) with application source code and runtime dependencies (`node_modules/`, `.venv/`, `dist/`), the application SHALL be scaffolded inside a dedicated application directory (e.g. `app/`, `apps/{name}/`, or `{app-name}/`).
    - Run framework setup commands targeting the subfolder (e.g. `npx create-next-app@latest app`, `npm create vite@latest app`, `nest new app`, `cargo new app`) with explicit human approval.

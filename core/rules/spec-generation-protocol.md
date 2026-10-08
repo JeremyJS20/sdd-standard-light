@@ -31,9 +31,29 @@ To eliminate linguistic confusion between framework standards and business domai
 
 ---
 
-## Mode 1: Forward Spec (New Feature)
+## Mode 1: Forward Spec (New Feature or Greenfield System)
 
-When creating a new feature from scratch or from an ADO User Story:
+When creating a new feature from scratch, from an elicitation session/PRD, or from an ADO User Story:
+
+### Step 0: Scope Evaluation & Anti-Monolith Decomposition Check (MANDATORY GATE 11)
+Before writing any specification files, the agent MUST evaluate the scope of the incoming requirements:
+1. **Litmus Test — Single Feature vs. Multi-Workflow Macro-Feature**:
+   - **Single Isolated Feature**: A single focused workflow, screen, or endpoint (e.g. "Export to Excel", "Dark Mode Toggle", "Filter by Date Range").
+     - Can be drafted directly under `specs/{AB#id-feature}/` (or `specs/{feature}/`).
+   - **Multi-Workflow Macro-Feature / Business System**: Any project, module, or initiative that encompasses:
+     - More than 1 primary business domain entity with an independent lifecycle (e.g. Departments, Assets, Depreciation Runs, Accounting Entries).
+     - Multiple distinct user personas or RBAC boundaries (e.g. Admin vs Custodian vs Accountant vs Auditor).
+     - Multiple distinct frontend screens, routes, or workflows.
+     - Batch calculation engines, regulatory logic (DGII, TSS), or external web service integrations.
+2. **STRICT PROHIBITION (Hard Gate 11)**:
+   - For a Multi-Workflow Macro-Feature, the agent is **STRICTLY FORBIDDEN** from bundling all requirements into a single monolithic `requirements.md` (e.g. `specs/{system}-core/requirements.md` or `specs/mvp/requirements.md`).
+   - Any agent that outputs a single `requirements.md` covering all entities, workflows, calculations, and integrations of a macro-system violates Hard Gate 11.
+3. **Mandatory Step 0 Action**:
+   - **Step 0.1**: Decompose the macro-system into a logical sequence of sub-modules:
+     `specs/{module}/01-{submodule-a}/`, `specs/{module}/02-{submodule-b}/`, etc.
+   - **Step 0.2**: Present the proposed decomposition to the human and **WAIT FOR EXPLICIT APPROVAL**.
+   - **Step 0.3**: Initialize or update the master living documentation `docs/modules/{module}.md` documenting the overall domain architecture, state machine, ERD, and capability matrix.
+   - **Step 0.4**: Only after human approval of the modular structure, proceed to Step 1 for **Sub-module 01 ONLY**.
 
 ### Step 1: Requirements Generation (`requirements.md`)
 1. **Gather Input via One of 3 Channels**:
@@ -41,7 +61,7 @@ When creating a new feature from scratch or from an ADO User Story:
    - **Channel B (Business Elicitation Interview)**: Conduct an interactive discovery interview (problem, actors, entities, business rules, integrations, NFRs) if requirements are underspecified or starting from scratch.
    - **Channel C (Azure DevOps / Functional Package)**: Read Functional Package (PRIMARY) or ADO User Story / Feature + linked WIs (FALLBACK).
 2. Load `specs/_templates/requirements-template.md`.
-3. Draft `specs/{AB#id-feature}/requirements.md`:
+3. Draft `specs/{module}/01-{submodule}/requirements.md` (or `specs/{AB#id-feature}/requirements.md` for single features):
    - Traceability (WI ID, parent feature, branch name).
    - Overview & Business context.
    - User Stories in **EARS** notation (`WHEN/WHILE/IF/WHERE [condition], the system SHALL [behavior]`).
