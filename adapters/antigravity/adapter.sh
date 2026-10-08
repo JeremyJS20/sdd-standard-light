@@ -154,8 +154,10 @@ trigger: always_on
 6. AB# in every commit
 7. Memory-first — server-memory before files, codebase-memory before grep (see sdd-tool-protocol)
 8. No editing protected files (.agents/mcp_config.json, .sdd-config.json, .sdd-credentials.json, etc.)
-9. Bug != Feature — different flows
+9. Bug != Feature — different flows, never put bug IDs as spec identity
 10. Requirements from Functional Package (primary) or ADO (fallback)
+11. Anti-Monolith — decompose macro-features into modular sub-features
+12. Anti-Superficiality — documentation must have exhaustive engineering depth (no 'etc.', no placeholders, full DDL/APIs/formulas)
 
 ## MCP checkpoints (MANDATORY — full detail in sdd-tool-protocol)
 - Session start: server-memory read → report "🧠 Memoria: …"; codebase-memory index check → report "🗺️ Grafo: …"
