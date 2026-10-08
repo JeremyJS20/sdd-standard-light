@@ -38,11 +38,11 @@ NEVER create specs without using templates from specs/_templates/.
 - NEVER invent sections not in the template
 - Respect ALWAYS marks (always include) and CONDITIONAL (include if applicable)
 
-### Gate 6: AB# in every commit
-Every commit must reference the work item.
-- feat(AB#5678): add export endpoint
-- fix(AB#1234): resolve login google oauth
-- NEVER commit without AB#
+### Gate 6: Meaningful commit scope & work item reference
+Every commit must reference the work item when integrated with Azure DevOps, or use standard Conventional Commits with clear scope in standalone/local mode.
+- ADO mode: `feat(AB#5678): add export endpoint`, `fix(AB#1234): resolve login google oauth`
+- Standalone / Local mode: `feat(payroll): add export endpoint`, `fix(auth): resolve login google oauth`
+- NEVER make vague commits like `update files` or commit without a defined scope/AB#.
 
 ### Gate 7: Memory-first
 server-memory before reading files. codebase-memory before grep.
@@ -60,15 +60,16 @@ Do not edit: opencode.json, .sdd-config.json, .sdd-credentials.json, VERSION, .a
 - NEVER create design.md for a bug
 - NEVER skip design.md or tasks.md for a feature
 
-### Gate 10: Requirements come from ADO or Functional Package
-The analyst does NOT touch the repo. Only creates WIs in ADO and Functional Packages in docs/requirements/functional-packages/.
-- Entry point priority:
+### Gate 10: Requirements come from Grounded Input Context
+The agent NEVER invents requirements without grounding in authoritative input.
+- In ADO Mode:
   1. **Functional Package** (PRIMARY): if `docs/requirements/functional-packages/Functional-Package-HU-{id}-*.md` exists, use it as the authoritative source
   2. **Azure DevOps WI** (FALLBACK): if no Functional Package, read the WI from ADO via MCP
-- The agent brings requirements into the repo as `specs/AB#id/requirements.md`
-- If using a Functional Package: `specs/AB#id/requirements.md` REFERENCES the package (link, not copy)
-- If using ADO WI: `specs/AB#id/requirements.md` copies the WI content into the template
-- NEVER create requirements.md from scratch without reading Functional Package or ADO first
+  - The agent brings requirements into the repo as `specs/AB#id/requirements.md` (or `specs/{module}/{sub-feature}/requirements.md`).
+- In Standalone / Local Mode:
+  1. **Channel A (Document / File)**: Parse PRD, brief, functional spec, or local client file in `docs/` or workspace.
+  2. **Channel B (Business Elicitation Interview)**: Conduct an interactive discovery interview across the 5 dimensions (Value, Roles, Entities, Rules, NFRs).
+- NEVER create requirements.md without grounding in one of these authoritative sources.
 
 ## Entry points
 

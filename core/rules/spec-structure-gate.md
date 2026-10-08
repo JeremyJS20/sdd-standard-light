@@ -12,7 +12,7 @@
 | 3 | Implement code without tasks.md | BLOCK |
 | 4 | Create spec file outside specs/ directory | BLOCK |
 | 5 | Create spec without using template | BLOCK |
-| 6 | Create requirements.md without reading ADO first | BLOCK |
+| 6 | Create requirements.md without input context (ADO WI, local PRD/file, or elicitation interview) | BLOCK |
 | 7 | Create design.md for a Bug (bugs don't need design) | BLOCK |
 | 8 | Create tasks.md for a Bug (bugs don't need tasks) | BLOCK |
 | 9 | Link Bug Work Item as the parent Feature/Spec ID in requirements.md or design.md | BLOCK |
@@ -36,7 +36,7 @@
 - Gate 3: Create tasks.md first (using template)
 - Gate 4: Move the file to specs/{AB#id-feature}/
 - Gate 5: Use the corresponding template from specs/_templates/
-- Gate 6: Read the WI from ADO via azure-devops MCP first
+- Gate 6: If integrated with Azure DevOps, read the WI via azure-devops MCP. In standalone/local mode, parse a local PRD/specification file (Channel A) or conduct a business elicitation interview (Channel B).
 - Gate 7: Bugs don't need design.md — go directly to fix
 - Gate 8: Bugs don't need tasks.md — go directly to fix
 - Gate 9: Specs are ONLY for Features, Epics, or User Stories/PBIs. NEVER put Bug IDs as the primary Work Item of a spec. If no Feature/PBI exists in ADO, set "Work Item: Pending (No PBI/Feature assigned in ADO yet)". Historical bugs found in Git history belong only in a dedicated "Historical Bugs Resolved" context section.

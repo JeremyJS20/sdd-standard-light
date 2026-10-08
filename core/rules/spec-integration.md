@@ -42,7 +42,7 @@ Every spec file MUST be based on the corresponding template:
 
 | File | Template | Who creates |
 |------|----------|-------------|
-| requirements.md | requirements-template.md | Agent (brings from ADO) |
+| requirements.md | requirements-template.md | Agent (from Document, Interview, or ADO) |
 | design.md | design-template.md | Developer (with approval) |
 | tasks.md | tasks-template.md | Developer (with approval) |
 

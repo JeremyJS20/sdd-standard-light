@@ -77,7 +77,8 @@ Rules:
 - codebase-memory returned no results → state it explicitly: "codebase-memory: sin resultados para X → fallback grep"
 - Never as the first option for code discovery
 
-## azure-devops → work items, PRs, pipelines
+## azure-devops → work items, PRs, pipelines (when integrated)
+- **Applicability**: Active only when Azure DevOps is configured (`host: "azure"`). In standalone/local mode (`host: "none"`), this tool is skipped and requirements are drawn from local files, interviews, or Git issues.
 - **Session start**: read assigned items in current sprint + active cortes (see `qa-corte-workflow.md`)
 - **Before working an AB#**: read WI + ALL linked WIs
 - **Before fixing a bug**: search resolved Bugs in the same area (see `bug-fix-protocol.md` Phase 1)
@@ -105,7 +106,7 @@ Rules:
 ## Priority order for finding information
 1. **server-memory** — decisions, conventions, corrections, past bug fixes
 2. **codebase-memory** — code structure, symbols, callers
-3. **azure-devops** — requirements, linked WIs, resolved bugs
+3. **azure-devops / local specs** — requirements, linked WIs, resolved bugs (ADO if configured; otherwise local PRDs or git issues)
 4. **git history** — `git log`, `git blame` on affected files
 5. **Read project files** — only what memory and the graph could not answer
 6. **context7** — external library docs

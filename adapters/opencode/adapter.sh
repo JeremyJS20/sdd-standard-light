@@ -38,6 +38,10 @@ PROJECT_ROOT="$(pwd)"
 
 # Build azure-devops environment
 ADO_ENV=""
+ADO_ENABLED="true"
+if [ -z "$ORG" ]; then
+  ADO_ENABLED="false"
+fi
 if [ -n "$PAT64" ]; then
   ADO_ENV="\"PERSONAL_ACCESS_TOKEN\": \"$PAT64\","
 fi
@@ -79,7 +83,7 @@ cat > opencode.json << OPENCODE_EOF
   "mcp": {
     "azure-devops": {
       "type": "local",
-      "enabled": true,
+      "enabled": $ADO_ENABLED,
       "command": [
         "npx", "-y", "@azure-devops/mcp",
         "$ORG",

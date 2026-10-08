@@ -27,7 +27,7 @@ Verify MCP servers are connected and responding:
   - Responding but repo NOT indexed → run `index_repository` now (tell the user)
   - Indexed but stale (new commits since last index, check with `index_status` / `detect_changes`) → re-index
   - **Report**: "🗺️ Grafo: indexado (N nodos)" / "indexando…" / "no disponible"
-- **azure-devops**: try list_projects. If responds: OK. If not: warn "Azure DevOps not available — cannot read work items automatically". This does NOT block but limits the flow.
+- **azure-devops**: if configured (host != "none" and org is set), try list_projects. If responds: OK. If not: warn "Azure DevOps not available — cannot read work items automatically". If host is "none" or standalone mode: skip (standalone/local mode active).
 - **context7**: no check needed (on-demand).
 - **sequential-thinking**: no check needed (on-demand).
 - **github**: no check needed (on-demand).

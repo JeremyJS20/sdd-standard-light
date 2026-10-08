@@ -95,8 +95,8 @@ while [[ $# -gt 0 ]]; do
       echo ""
       echo "Flags:"
       echo "  --ide <name>          IDE objetivo (default: opencode)"
-      echo "  --org <name>          Organizacion Azure DevOps"
-      echo "  --project <name>      Proyecto en ADO"
+      echo "  --org <name>          Organizacion Azure DevOps (opcional)"
+      echo "  --project <name>      Proyecto en ADO (opcional)"
       echo "  --non-interactive     Modo CI, requiere args via flags"
       echo "  --force               Sobrescribir"
       echo "  --help                Esta ayuda"
@@ -128,15 +128,15 @@ if [ "$NON_INTERACTIVE" = false ]; then
     echo ""
   fi
 
-  # Org
+  # Org (opcional)
   if [ -z "$ORG" ]; then
-    read -p "  Organizacion Azure DevOps (ej: unipagosa): " ORG
+    read -p "  Organizacion Azure DevOps (ENTER para omitir / modo local): " ORG
     echo ""
   fi
 
-  # Project
-  if [ -z "$PROJECT" ]; then
-    read -p "  Proyecto en Azure DevOps (ej: MiProyecto): " PROJECT
+  # Project (solo si se especifico organizacion)
+  if [ -n "$ORG" ] && [ -z "$PROJECT" ]; then
+    read -p "  Proyecto en Azure DevOps (ENTER para omitir): " PROJECT
     echo ""
   fi
 fi
@@ -155,18 +155,20 @@ if [ "$NEEDS_CREDENTIALS" = true ] && [ "$NON_INTERACTIVE" = false ]; then
   echo "Configuracion de credenciales:"
   echo ""
 
-  # ADO PAT (required)
-  echo "  Azure DevOps PAT (dev.azure.com -> Settings -> Tokens)"
-  read -p "  Pega tu PAT: " ADO_PAT
-  echo ""
-  ADO_PAT=$(echo "$ADO_PAT" | tr -d '[:cntrl:]')
+  # ADO PAT (solo si hay organizacion)
+  if [ -n "$ORG" ]; then
+    echo "  Azure DevOps PAT (dev.azure.com -> Settings -> Tokens)"
+    read -p "  Pega tu PAT (ENTER para omitir): " ADO_PAT
+    echo ""
+    ADO_PAT=$(echo "$ADO_PAT" | tr -d '[:cntrl:]')
 
-  if [ -z "$ADO_PAT" ]; then
-    echo "  WARNING: PAT vacio. Azure DevOps MCP no funcionara sin PAT."
-  else
-    echo "   OK PAT de Azure DevOps configurado"
+    if [ -z "$ADO_PAT" ]; then
+      echo "  WARNING: PAT vacio. Azure DevOps MCP no funcionara sin PAT."
+    else
+      echo "   OK PAT de Azure DevOps configurado"
+    fi
+    echo ""
   fi
-  echo ""
 
   # GitHub PAT (optional)
   read -p "  GitHub PAT (ENTER para omitir): " GITHUB_PAT
@@ -190,13 +192,7 @@ if [ -z "$IDE" ]; then
 fi
 
 if [ -z "$ORG" ]; then
-  echo "ERROR: Organizacion es obligatoria"
-  exit 1
-fi
-
-if [ -z "$PROJECT" ]; then
-  echo "ERROR: Proyecto es obligatorio"
-  exit 1
+  echo "   INFO: Sin organizacion Azure DevOps (Modo Local / Standalone)."
 fi
 
 # --- Download core/ and adapters/ from repo if not present locally ---
@@ -306,8 +302,8 @@ fi
 # --- Resumen ---
 echo "Configuracion:"
 echo "   IDE:          $IDE"
-echo "   Organizacion: $ORG"
-echo "   Proyecto:     $PROJECT"
+echo "   Organizacion: ${ORG:-'(ninguna - modo local)'}"
+echo "   Proyecto:     ${PROJECT:-'(ninguno)'}"
 echo "   Force:        $FORCE"
 echo ""
 
@@ -389,14 +385,19 @@ echo "   OK .sdd-memory/ creado"
 
 # --- 5. Crear .sdd-config.json ---
 if [ ! -f ".sdd-config.json" ] || [ "$FORCE" = true ]; then
+  HOST_TYPE="azure"
+  if [ -z "$ORG" ]; then
+    HOST_TYPE="none"
+  fi
+
   cat > .sdd-config.json << CONFIG_EOF
 {
   "role": "developer",
   "ides": ["$IDE"],
   "spec_prefix": "AB#",
   "app_dir": "",
-  "host": "azure",
-  "project_host": "azure",
+  "host": "$HOST_TYPE",
+  "project_host": "$HOST_TYPE",
   "azure_devops_org": "$ORG",
   "azure_devops_project": "$PROJECT",
   "wi_states": {

@@ -1,5 +1,7 @@
 # Azure DevOps Workflow
 
+> This workflow applies when the project is connected to Azure DevOps (`host: "azure"`).
+> For standalone/local mode (`host: "none"`), requirements and tasks are driven via local specifications (`specs/`) or Git issues without requiring Azure DevOps connection.
 > The developer RECEIVES and FIXES. Does not report.
 > The analyst does NOT touch the repo. Only creates WIs in ADO.
 > The agent brings requirements from ADO into the repo via MCP.

@@ -61,14 +61,16 @@ const [org, project, pat64, projectRoot, cbmBin] = process.argv.slice(2);
 
 const config = {
   mcpServers: {
-    "azure-devops": {
-      command: "npx",
-      args: ["-y", "@azure-devops/mcp", org, "--authentication", "pat"],
-      env: {
-        ...(pat64 ? { PERSONAL_ACCESS_TOKEN: pat64 } : {}),
-        AZURE_DEVOPS_DEFAULT_PROJECT: project
+    ...(org ? {
+      "azure-devops": {
+        command: "npx",
+        args: ["-y", "@azure-devops/mcp", org, "--authentication", "pat"],
+        env: {
+          ...(pat64 ? { PERSONAL_ACCESS_TOKEN: pat64 } : {}),
+          ...(project ? { AZURE_DEVOPS_DEFAULT_PROJECT: project } : {})
+        }
       }
-    },
+    } : {}),
     "sequential-thinking": {
       command: "npx",
       args: ["-y", "@modelcontextprotocol/server-sequential-thinking"]
