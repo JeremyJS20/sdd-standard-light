@@ -76,9 +76,14 @@ Code tells you **WHAT** is there; Git history tells you **WHY** it was built tha
 
 2. **Git Archeology & Business Intent Mining**:
    - `git log --oneline -25 -- <feature_files>`: extract the feature's evolution and all related commit messages (e.g. `feat(payroll): connect cycles...`, `refactor: clean redirects`).
-   - `git log --all --grep="AB#" --oneline`: find all linked User Stories and Bugs that shaped this feature.
+   - `git log --all --grep="AB#" --oneline`: find linked User Stories and historical Bugs that touched this module.
    - `git blame -L <start>,<end> <file>` on key business logic: uncover why magic numbers, legal formulas, or regulatory rates were set (e.g., discovering `salario / 23.83 / 8` comes from MT Labor Code, or TSS `2.87% / 3.04%` from Law 87-01).
    - `git log -S "<keyword>"`: trace when and why specific business rules or validations were added or modified.
+   - **CRITICAL ANTI-DISPARATE RULE (Bug != Feature)**:
+     - Commits with `fix(AB#...)` or branches `fix/AB#...` are **BUGS**, NOT the Feature itself!
+     - The agent SHALL NEVER put Bug IDs in the `Work Item:` header of a spec.
+     - Bug IDs from git history belong STRICTLY in an optional context section: `### Bugs Históricos Resueltos en este Módulo (Contexto)`.
+     - The `Work Item:` header MUST only contain an Epic, Feature, or User Story/PBI ID. If none exists in ADO, set `Work Item: Pendiente (Sin PBI / Feature asignado aún en ADO)`.
 
 3. Combine both sources to reconstruct the original functional intent, edge case fixes, and unwritten domain rules.
 
@@ -129,3 +134,4 @@ When adding a new sub-feature to an already functioning module (e.g., adding *Di
 - NEVER generates `tasks.md` before `design.md` is approved.
 - NEVER starts implementation before `tasks.md` is approved.
 - NEVER invents sections outside the official templates.
+- NEVER puts Bug IDs as the primary Work Item or identity of a spec. A Feature is not a collection of bugs (Bug != Feature).
