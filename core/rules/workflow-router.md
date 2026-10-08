@@ -136,13 +136,15 @@ The agent detects what phase of work it is in:
    - `requirements.md`: Core MVP requirements, actors, scope.
    - `design.md`: Architecture, project folder structure, database schema, deployment strategy.
    - `tasks.md`: Broken down into Waves:
-     - **Wave 0 (Scaffolding / Infra)**: CLI/framework init, linters, TypeScript/compiler config, testing setup, preserve SDD files, CI/CD pipeline setup.
+     - **Wave 0 (Scaffolding / Subfolder Isolation)**: Framework init into a dedicated subfolder (`app/` or `apps/{name}/`), linters, TypeScript config, testing setup, preserve SDD root files, CI/CD pipeline setup, configure `app_dir` in `.sdd-config.json`.
      - **Wave 1**: Core data models & migrations.
      - **Wave 2**: Core backend services / APIs.
      - **Wave 3**: Core UI layout / screens.
-3. **Scaffolding Execution (Wave 0)**:
-   - Run framework setup commands (e.g. `npx create-next-app`, etc.) with explicit human approval.
-   - Preserve existing `.gitignore`, SDD rules, and configuration during scaffolding.
+3. **Scaffolding Execution (Wave 0 & Subfolder Isolation)**:
+   - **Application Subfolder Isolation**: To avoid mixing SDD orchestration files (`.agents/`, `.opencode/`, `specs/`, `docs/`, `.sdd-memory/`, `.sdd-*`, `sdd-init.sh`) with application source code and runtime dependencies (`node_modules/`, `.venv/`, `dist/`), the application SHALL be scaffolded inside a dedicated application directory (e.g. `app/`, `apps/{name}/`, or `{app-name}/`).
+   - Run framework setup commands targeting the subfolder (e.g. `npx create-next-app@latest app`, `npm create vite@latest app`, `nest new app`, `cargo new app`) with explicit human approval.
+   - Configure `"app_dir": "app"` in `.sdd-config.json` so prechecks, linters, and start commands know where the application root resides.
+   - Preserve existing root `.gitignore`, SDD rules, and configuration during scaffolding.
 4. **Codebase Indexing**:
    - Immediately run `codebase-memory index_repository` on the newly scaffolded codebase.
 5. Proceed to subsequent waves as standard SDD development.

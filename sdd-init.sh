@@ -394,6 +394,7 @@ if [ ! -f ".sdd-config.json" ] || [ "$FORCE" = true ]; then
   "role": "developer",
   "ides": ["$IDE"],
   "spec_prefix": "AB#",
+  "app_dir": "",
   "host": "azure",
   "project_host": "azure",
   "azure_devops_org": "$ORG",

@@ -12,8 +12,16 @@
 | specs/{AB#id}/design.md | repo | Developer |
 | specs/{AB#id}/tasks.md | repo | Developer |
 | .sdd-config.json | repo | sdd-init.sh |
+| Application code (`app/`, `apps/`, `src/`) | subfolder | Scaffolding Wave 0 / Developer |
 | .env.example | repo | sdd-init.sh |
 | .gitignore | repo | sdd-init.sh |
+
+### Application Subfolder Isolation
+In Greenfield projects and clean setups, the application source code is maintained inside a dedicated subfolder (e.g. `app/`, `apps/{name}/`, or `{app-name}/`).
+This ensures:
+1. Complete separation between SDD governance files (`.agents/`, `.opencode/`, `specs/`, `.sdd-*`) and application runtime/build artifacts (`node_modules/`, `.next/`, `dist/`, `target/`, `.venv/`).
+2. Clean package manifests (`package.json`, `go.mod`, etc.) without polluting root tooling.
+3. Clean monorepo scalability (e.g. multiple services or apps under `apps/` or `packages/`).
 
 ## Gitignored (local, NEVER committed — contain secrets/credentials)
 

@@ -36,13 +36,14 @@ Verify MCP servers are connected and responding:
 
 ## Step 4: Project type detection
 Read project configuration:
-- `.sdd-config.json` → role, ides, spec_prefix, azure_devops_org, azure_devops_project, wi_states, wi_types
-- `package.json` → Node.js/TypeScript/JavaScript
-- `requirements.txt` or `pyproject.toml` → Python
-- `pubspec.yaml` → Flutter/Dart
-- `go.mod` → Go
-- `Cargo.toml` → Rust
-- `composer.json` → PHP
+- `.sdd-config.json` → role, ides, spec_prefix, azure_devops_org, azure_devops_project, wi_states, wi_types, app_dir (if configured)
+- Look for manifest in repo root OR inside `app_dir` (e.g. `app/`, `apps/*/`, `src/`):
+  - `package.json` → Node.js/TypeScript/JavaScript
+  - `requirements.txt` or `pyproject.toml` → Python
+  - `pubspec.yaml` → Flutter/Dart
+  - `go.mod` → Go
+  - `Cargo.toml` → Rust
+  - `composer.json` → PHP
 - Check for `docs/requirements/functional-packages/` directory
   - If exists: note "Functional Packages detected — agent will use these as PRIMARY entry point for features"
 - If stack not detected: warn "Stack not detected. Specify your stack manually."
