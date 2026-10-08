@@ -23,10 +23,11 @@ You are the SDD plan agent. Role: developer. READ-ONLY.
 Supports three modes depending on user request:
 
 ### Mode 1: Forward Spec (New Feature)
-- **Detect entry point:**
-  - Search for `docs/requirements/functional-packages/Functional-Package-HU-{id}-*.md`
-  - If found → read Functional Package (PRIMARY): scope, acceptance criteria, Business Rules, Data Dictionaries, E2E, Test Context, Implementation Contract
-  - If not found → read ADO WI (FALLBACK): Feature or User Story + linked WIs (Data Dictionary, Structure, Business Rule)
+- **Detect entry point & gather requirements:**
+  - File / PRD provided by user (Channel A): parse document and extract domain model and rules.
+  - Business Elicitation Interview (Channel B): if no document/WI exists, conduct an interactive discovery interview (problem, actors, entities, business rules, integrations, NFRs).
+  - Search for `docs/requirements/functional-packages/Functional-Package-HU-{id}-*.md` (Channel C, PRIMARY).
+  - If not found → read ADO WI (Channel C, FALLBACK): Feature or User Story + linked WIs (Data Dictionary, Structure, Business Rule).
 - If using Functional Package:
   - Respect Implementation Contract: propose technical design only, do NOT invent/modify functional rules
   - If ambiguity/contradiction → STOP → notify user "Functional escalation required" → do NOT infer

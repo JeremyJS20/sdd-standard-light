@@ -21,7 +21,10 @@
 When creating a new feature from scratch or from an ADO User Story:
 
 ### Step 1: Requirements Generation (`requirements.md`)
-1. Read input: ADO User Story, Functional Package, or user requirements discussion.
+1. **Gather Input via One of 3 Channels**:
+   - **Channel A (Document / File)**: Parse PRD, brief, functional spec, or client file (Markdown, PDF, TXT, etc.).
+   - **Channel B (Business Elicitation Interview)**: Conduct an interactive discovery interview (problem, actors, entities, business rules, integrations, NFRs) if requirements are underspecified or starting from scratch.
+   - **Channel C (Azure DevOps / Functional Package)**: Read Functional Package (PRIMARY) or ADO User Story / Feature + linked WIs (FALLBACK).
 2. Load `specs/_templates/requirements-template.md`.
 3. Draft `specs/{AB#id-feature}/requirements.md`:
    - Traceability (WI ID, parent feature, branch name).

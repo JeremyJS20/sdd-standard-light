@@ -117,10 +117,20 @@ The agent detects what phase of work it is in:
 
 ## Greenfield project flow (project from scratch)
 
-When Precheck detects a Greenfield project (no existing application code):
-1. **Inception & Stack Decision**:
-   - Understand the project vision, domain, and requirements (from user prompt or ADO Epic/Feature WI).
-   - Propose stack and architecture (Frontend, Backend, Database, Cloud) and save as `Decision` in server-memory.
+1. **Inception & Requirements Elicitation (Step 1)**:
+   The agent gathers requirements through one of three flexible input channels:
+   - **Channel A: Local File / Document (File-based Discovery)**: The user provides a path to a file (PRD, RFP, Markdown, PDF, TXT, or brief in `docs/`). The agent parses it, extracts entities, actors, workflows, and business rules.
+   - **Channel B: Business Elicitation Interview (Discovery Session)**: If no document exists, the agent conducts an interactive interview (focused questions across 5 dimensions):
+     1. *Core Value & Business Model*: What problem does it solve? Who pays/uses it?
+     2. *Actors & Access (RBAC)*: What roles exist (Admin, Operador, Cliente)? What are their boundaries?
+     3. *Domain Entities & Lifecycle*: What are the main nouns (Order, Invoice, Asset) and their state machines?
+     4. *Critical Business Rules*: Validations, legal/tax calculations, limits, edge cases.
+     5. *Integrations & NFRs*: External APIs, volume, response times, security constraints.
+   - **Channel C: Azure DevOps (ADO Backlog)**: Reads an Epic or Feature WI and linked requirements.
+   - **Stack & Architecture Decision**:
+     - Based on the elicited domain, propose the optimal stack (Frontend, Backend, Database, Cloud/Infra) and folder conventions.
+     - Present pros/cons and justifications.
+     - On human approval, record as a `Decision` entity in `server-memory`.
 2. **Initial Spec Creation**:
    - Follow `spec-generation-protocol.md` Mode 1 (Forward Spec) under `specs/initial-setup/` or `specs/{AB#id-setup}/`:
    - `requirements.md`: Core MVP requirements, actors, scope.
