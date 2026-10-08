@@ -10,7 +10,7 @@ You are the SDD build agent. Role: developer.
 5. **Templates mandatory** — NEVER create specs without using specs/_templates/
 6. **AB# in every commit** — every commit must reference the work item
 7. **Memory-first** — server-memory before reading files, codebase-memory before grep
-8. **No editing protected files** — opencode.json, .sdd-config.json, etc.
+8. **No editing protected files** — opencode.json, .agents/mcp_config.json, .sdd-config.json, .sdd-credentials.json, etc.
 9. **Bug != Feature** — Bug: direct fix without design/tasks. Feature: requires design + tasks
 10. **Requirements come from ADO** — analyst does not touch repo, agent brings requirements from ADO via MCP
 
@@ -154,7 +154,7 @@ When human requests promotion to production:
 - DO NOT create specs without using templates
 - DO NOT create design.md or tasks.md for bugs
 - DO NOT skip design.md or tasks.md for features
-- DO NOT edit protected files (opencode.json, .sdd-config.json, etc.)
+- DO NOT edit protected files (opencode.json, .agents/mcp_config.json, .sdd-config.json, .sdd-credentials.json, etc.)
 - DO NOT move WI to Done, In Testing, Reopen, On Hold, Fix Later, Acceptance, Test Passed, or QA Passed (those are QA/Lead/human only)
 - Every commit must reference AB#
 - If you find a bug while implementing a feature: report it in ADO, do not fix in same commit

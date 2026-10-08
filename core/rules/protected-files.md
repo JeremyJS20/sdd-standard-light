@@ -7,13 +7,14 @@
 
 | File | Why | Who manages it |
 |------|-----|----------------|
-| opencode.json | Contains MCP config with credentials | sdd-init.sh / manual with approval |
+| opencode.json | OpenCode MCP config with credentials | sdd-init.sh / manual with approval |
 | .sdd-config.json | Project configuration (role, org, project) | sdd-init.sh / manual with approval |
-| .sdd-credentials.json | Secrets (-credentials.json | Template for credentials | sdd-init.sh |
+| .sdd-credentials.json | Local credentials store (PATs, API keys) | sdd-init.sh |
 | VERSION | Version marker | sdd-init.sh |
-| .kiro/settings/mcp.json | Kiro MCP config | sdd-init.sh / adapter |
-| .mcp.json | Claude MCP config | sdd-init.sh / adapter |
-| .agents/mcp_config.json | Antigravity MCP config | sdd-init.sh / adapter |
+| .kiro/settings/mcp.json | Kiro MCP config with credentials | sdd-init.sh / adapter |
+| .mcp.json | Claude / Cursor MCP config with credentials | sdd-init.sh / adapter |
+| .claude/mcp.json | Claude Code project MCP config with credentials | sdd-init.sh / adapter |
+| .agents/mcp_config.json | Antigravity MCP config with credentials | sdd-init.sh / adapter |
 
 ## What to do if the agent tries to edit a protected file
 1. STOP immediately

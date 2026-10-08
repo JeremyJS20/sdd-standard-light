@@ -6,8 +6,7 @@
 
 | Artifact | Location | Who creates |
 |----------|----------|-------------|
-| .opencode/rules/ (11 files) | repo | sdd-init.sh |
-| .opencode/agents/ (2 files) | repo | sdd-init.sh |
+| IDE rules and agents (`.opencode/`, `.agents/`, `.kiro/`, `.claude/`) | repo | sdd-init.sh |
 | specs/_templates/ (3 files) | repo | sdd-init.sh |
 | specs/{AB#id}/requirements.md | repo | Agent (from ADO) |
 | specs/{AB#id}/design.md | repo | Developer |
@@ -16,15 +15,20 @@
 | .env.example | repo | sdd-init.sh |
 | .gitignore | repo | sdd-init.sh |
 
-## Gitignored (local, NOT committed)
+## Gitignored (local, NEVER committed — contain secrets/credentials)
 
 | Artifact | Why |
 |----------|-----|
-| opencode.json | Contains PATs/credentials |
-| .sdd-memory/memory.jsonl | Local session memory |
-| .env | Secrets (PATs) |
-| .sdd-credentials.json | Credentials |
-| sdd-init.sh | Installer script (not project code) |
+| `opencode.json` | OpenCode MCP config — contains PATs/credentials |
+| `.agents/mcp_config.json` | Antigravity MCP config — contains PATs/credentials |
+| `.kiro/settings/mcp.json` | Kiro MCP config — contains PATs/credentials |
+| `.mcp.json` | Claude Code / Cursor MCP config — contains PATs/credentials |
+| `.claude/mcp.json` | Claude Code project MCP config — contains PATs/credentials |
+| `.sdd-credentials.json` | Local credentials store (PATs, API keys) |
+| `.env`, `.env.local`, `.env.*.local` | Local environment variables and secrets |
+| `.sdd-memory/` | Local session memory store |
+| `.sdd-cache/` | Local temporary cache |
+| `sdd-init.sh` | Installer script (downloaded during setup) |
 
 ## Azure DevOps (NOT in repo)
 
@@ -43,8 +47,8 @@
 - Every WI has a branch → traceable from WI to code
 
 ## What NEVER to do
-- DO NOT commit opencode.json (contains credentials)
-- DO NOT commit .env (contains secrets)
-- DO NOT commit .sdd-memory/ (local memory)
+- DO NOT commit MCP config files (`opencode.json`, `.agents/mcp_config.json`, `.kiro/settings/mcp.json`, `.mcp.json`, `.claude/mcp.json`) — they contain PATs and credentials
+- DO NOT commit credentials or secret files (`.sdd-credentials.json`, `.env`, `.env.local`)
+- DO NOT commit `.sdd-memory/` (local session memory)
 - DO NOT store specs outside the repo (they are team-shared)
 - DO NOT store work items in the repo (they live in ADO)

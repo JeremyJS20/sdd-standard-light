@@ -241,6 +241,46 @@ if [ ! -d "$SCRIPT_DIR/core" ]; then
   exit 1
 fi
 
+# --- Protect secrets FIRST (before any credential file is written) ---
+# Files that contain PATs / API keys. NEVER committed.
+SECRET_FILES=(
+  "opencode.json"
+  ".kiro/settings/mcp.json"
+  ".mcp.json"
+  ".claude/mcp.json"
+  ".agents/mcp_config.json"
+  ".sdd-credentials.json"
+  ".env"
+  ".env.local"
+  ".env.*.local"
+)
+GITIGNORE_ENTRIES=("${SECRET_FILES[@]}" ".sdd-memory/" ".sdd-cache/")
+
+touch .gitignore
+# Ensure the file ends with a newline so the first appended entry is not glued to the last line
+if [ -s .gitignore ] && [ -n "$(tail -c 1 .gitignore)" ]; then
+  echo "" >> .gitignore
+fi
+# Exact line match (-x): ".env" must not be considered present just because ".env.example" exists
+for entry in "${GITIGNORE_ENTRIES[@]}"; do
+  if ! tr -d '\r' < .gitignore | grep -qxF "$entry"; then
+    echo "$entry" >> .gitignore
+  fi
+done
+
+# Untrack secret files committed by older installs (keeps the local file)
+if [ -d ".git" ]; then
+  for f in "${SECRET_FILES[@]}"; do
+    if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+      git rm --cached --quiet "$f"
+      echo "   WARNING: $f estaba trackeado en git — removido del indice (archivo local intacto)."
+      echo "            Si ya fue pusheado, ROTA los tokens: siguen en el historial de git."
+    fi
+  done
+fi
+echo "   OK .gitignore protege credenciales (MCP configs, .sdd-credentials.json, .env)"
+echo ""
+
 # --- Generate PAT64 and save credentials ---
 if [ "$NEEDS_CREDENTIALS" = true ] && [ -n "$ADO_PAT" ]; then
   # PAT64 = base64(email:pat)
@@ -413,28 +453,14 @@ STITCH_API_KEY=
 ENV_EOF
 echo "   OK .env.example generado"
 
-# --- 7. Actualizar .gitignore ---
-GITIGNORE_ENTRIES=(
-  "opencode.json"
-  ".kiro/settings/mcp.json"
-  ".mcp.json"
-  ".agents/mcp_config.json"
-  ".sdd-memory/"
-  ".sdd-credentials.json"
-  ".env"
-  ".sdd-cache/"
-)
-
+# --- 7. Re-verificar .gitignore ---
+# Las entradas principales ya se protegieron al inicio del script.
 for entry in "${GITIGNORE_ENTRIES[@]}"; do
-  if [ -f ".gitignore" ]; then
-    if ! grep -qF "$entry" ".gitignore" 2>/dev/null; then
-      echo "$entry" >> .gitignore
-    fi
-  else
-    echo "$entry" > .gitignore
+  if ! tr -d '\r' < .gitignore 2>/dev/null | grep -qxF "$entry"; then
+    echo "$entry" >> .gitignore
   fi
 done
-echo "   OK .gitignore actualizado"
+echo "   OK .gitignore verificado (MCP configs y credenciales protegidos)"
 
 # --- 8. Crear specs/ si no existe ---
 if [ -d "specs" ] && ! [ "$FORCE" = true ]; then
@@ -459,6 +485,11 @@ if [ -d ".git" ]; then
   # Add each item individually, skip silently if doesn't exist
   for item in $COMMIT_DIRS; do
     [ -e "$item" ] && git add "$item" 2>/dev/null || true
+  done
+
+  # Safety guard: ensure NO secret, credential, or MCP config file is staged under any circumstances
+  for sec in "${SECRET_FILES[@]}"; do
+    git rm --cached --quiet "$sec" 2>/dev/null || true
   done
 
   # Check if there's anything staged

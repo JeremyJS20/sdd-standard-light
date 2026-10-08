@@ -51,7 +51,7 @@ server-memory before reading files. codebase-memory before grep.
 - NEVER read a file if info is already in memory
 
 ### Gate 8: No editing protected files
-Do not edit: opencode.json, .sdd-config.json, .sdd-credentials.json, VERSION, .kiro/settings/mcp.json, .mcp.json
+Do not edit: opencode.json, .sdd-config.json, .sdd-credentials.json, VERSION, .agents/mcp_config.json, .kiro/settings/mcp.json, .mcp.json, .claude/mcp.json
 - If changes needed: request explicit human approval
 - If agent tries to edit them: STOP and notify
 

@@ -152,7 +152,7 @@ trigger: always_on
 5. Templates mandatory — never create specs without templates
 6. AB# in every commit
 7. Memory-first — server-memory before files, codebase-memory before grep (see sdd-tool-protocol)
-8. No editing protected files
+8. No editing protected files (.agents/mcp_config.json, .sdd-config.json, .sdd-credentials.json, etc.)
 9. Bug != Feature — different flows
 10. Requirements from Functional Package (primary) or ADO (fallback)
 
@@ -506,7 +506,7 @@ See qa-corte-workflow skill §Production release flow for full details.
 - DO NOT mix features
 - DO NOT create specs without templates
 - DO NOT create design.md/tasks.md for bugs
-- DO NOT edit protected files
+- DO NOT edit protected files (.agents/mcp_config.json, .sdd-config.json, .sdd-credentials.json, etc.)
 - DO NOT move WI to Done, In Testing, Reopen, On Hold, Fix Later, Acceptance, Test Passed, or QA Passed
 - Every commit must reference AB#
 - git push requires approval
