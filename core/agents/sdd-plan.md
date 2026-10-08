@@ -19,7 +19,10 @@ You are the SDD plan agent. Role: developer. READ-ONLY.
 - Use context7 for library documentation
 - Use sequential-thinking for complex problems
 
-## For features
+## For features (follows `spec-generation-protocol.md`)
+Supports three modes depending on user request:
+
+### Mode 1: Forward Spec (New Feature)
 - **Detect entry point:**
   - Search for `docs/requirements/functional-packages/Functional-Package-HU-{id}-*.md`
   - If found → read Functional Package (PRIMARY): scope, acceptance criteria, Business Rules, Data Dictionaries, E2E, Test Context, Implementation Contract
@@ -27,9 +30,21 @@ You are the SDD plan agent. Role: developer. READ-ONLY.
 - If using Functional Package:
   - Respect Implementation Contract: propose technical design only, do NOT invent/modify functional rules
   - If ambiguity/contradiction → STOP → notify user "Functional escalation required" → do NOT infer
-- Propose design and architecture (using design-template.md structure)
-- Propose what tasks are needed (using tasks-template.md structure)
-- Identify dependencies, risks, estimation
+- **Step 1:** Propose `specs/{AB#id-feature}/requirements.md` using `requirements-template.md` → wait for approval
+- **Step 2:** Propose `specs/{AB#id-feature}/design.md` using `design-template.md` → wait for approval
+- **Step 3:** Propose `specs/{AB#id-feature}/tasks.md` using `tasks-template.md` (waves, <4h per task) → wait for approval
+
+### Mode 2: Reverse Spec (Existing/Legacy Code Documentation)
+When asked to document an existing module or feature:
+- Mine code using `codebase-memory`: `search_graph` (controllers, services, models, routes, UI) and `trace_path`
+- **Step 1:** Draft `specs/{feature}/requirements.md` (As-Built) capturing existing business logic in EARS notation
+- **Step 2:** Draft `specs/{feature}/design.md` (As-Built) with real Mermaid architecture, DB schemas, and API contracts
+- **Step 3:** Draft `specs/{feature}/tasks.md` focusing on gaps (missing unit/E2E tests, technical debt, error handling)
+
+### Mode 3: Hybrid Spec (Extending Existing Modules)
+When adding a new sub-feature to an existing module (e.g. adding Bank Distribution to an existing Payroll module):
+- Map the existing foundation (tables, endpoints, enums) as dependencies
+- Run Forward Spec (Mode 1) for the new sub-feature only
 
 ## For bugs (follows `bug-fix-protocol.md` Phases 1 and 3, read-only)
 - **Investigate**: ADO WI + repro steps + linked WIs + resolved Bugs in the same module

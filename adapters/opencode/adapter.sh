@@ -70,7 +70,8 @@ cat > opencode.json << OPENCODE_EOF
     ".opencode/rules/spec-integration.md",
     ".opencode/rules/artifact-storage.md",
     ".opencode/rules/change-propagation.md",
-    ".opencode/rules/spec-structure-gate.md"
+    ".opencode/rules/spec-structure-gate.md",
+    ".opencode/rules/spec-generation-protocol.md"
   ],
   "skills": {
     "paths": [".opencode/skills"]

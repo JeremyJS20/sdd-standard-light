@@ -12,7 +12,7 @@ sdd-standard/
 ├── README.md                # Este archivo
 ├── .env.example             # Variables de entorno template
 ├── core/                    # Contenido independiente del IDE
-│   ├── rules/               # 13 steering rules
+│   ├── rules/               # 14 steering rules
 │   ├── agents/              # 2 agent prompts (sdd-build, sdd-plan)
 │   └── templates/           # 3 spec templates (requirements, design, tasks)
 └── adapters/                # Adaptadores por IDE (extensible)
@@ -91,12 +91,13 @@ codebase-memory-mcp config set auto_index true
 11. spec-structure-gate.md — bloqueos automaticos
 12. qa-corte-workflow.md — ciclos de testing QA (cortes), releases a QA y prod, semver
 13. bug-fix-protocol.md — fixes con evidencia: investigar, reproducir, impacto, verificar, deploy DEV/QA, aprender
+14. spec-generation-protocol.md — generación de specs (Forward para nuevo, Reverse para existente/as-built, Hybrid para extensiones)
 
 ## HARD GATES (non-negotiable)
 
 1. AI proposes, human approves
 2. One spec at a time
-3B3. No auto-deploy prod
+3. No auto-deploy prod
 4. No auto-merge PRs
 5. Templates obligatorios
 6. AB# en todo commit

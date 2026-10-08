@@ -180,14 +180,18 @@ Agent NEVER: Done, In Testing, Reopen, On Hold, Fix Later, Acceptance, Test Pass
 - NEVER merge develop→qa or qa→main directly — audit scope, use release/corte-DD-MM-YYYY or release/prod-DD-MM-YYYY
 - Post audit trail comment on ADO PBIs after each release. Tag vX.Y.Z after prod merge (with approval)
 
+## Features & Specs (MANDATORY — activate skill spec-generation-protocol)
+Supports Forward (new), Reverse (existing code/as-built), and Hybrid (extending existing modules).
+NEVER code without approved requirements.md, design.md, and tasks.md.
+
 ## Skills to activate on demand
-bug-fix-protocol · qa-corte-workflow · azure-devops-workflow · git-conventions · protected-files · token-optimization
+bug-fix-protocol · qa-corte-workflow · spec-generation-protocol · azure-devops-workflow · git-conventions · protected-files · token-optimization
 CORE_EOF
 
 echo "   OK 4 always-on rules generated (.agents/rules/)"
 
 # --- 4. Procedural rules as skills (on demand) ---
-SKILL_RULES=("bug-fix-protocol" "qa-corte-workflow" "azure-devops-workflow" "git-conventions" "protected-files" "token-optimization")
+SKILL_RULES=("bug-fix-protocol" "qa-corte-workflow" "spec-generation-protocol" "azure-devops-workflow" "git-conventions" "protected-files" "token-optimization")
 
 for rule in "${SKILL_RULES[@]}"; do
   mkdir -p ".agents/skills/$rule"
@@ -297,6 +301,7 @@ tools:
   - grep_search
 commandExecutionPolicy: off
 skills:
+  - skills/spec-generation-protocol
   - skills/bug-fix-protocol
   - skills/qa-corte-workflow
   - skills/azure-devops-workflow
@@ -316,17 +321,24 @@ You are the SDD plan agent. Role: developer. READ-ONLY.
 7. Detect type: Feature, Bug, or QA Corte
 8. Detect phase of work
 
-## For features
-- Detect entry point:
-  - Search for docs/requirements/functional-packages/Functional-Package-HU-{id}-*.md
-  - If found → read Functional Package (PRIMARY): scope, acceptance criteria, Business Rules, Data Dictionaries, E2E, Test Context, Implementation Contract
-  - If not found → read ADO WI (FALLBACK): Feature or User Story + linked WIs
-- If using Functional Package:
-  - Respect Implementation Contract: propose technical design only, do NOT invent/modify functional rules
-  - If ambiguity/contradiction → STOP → notify user "Functional escalation required" → do NOT infer
-- Propose design and architecture (using design-template.md structure)
-- Propose what tasks are needed (using tasks-template.md structure)
-- Identify dependencies, risks, estimation
+## For features (skill spec-generation-protocol)
+Supports three modes depending on request:
+
+Mode 1: Forward Spec (New Feature)
+- Detect entry point: Functional Package (PRIMARY) or ADO WI (FALLBACK)
+- Step 1: Propose requirements.md (EARS notation, acceptance criteria, NFRs) -> wait for approval
+- Step 2: Propose design.md (architecture, component diagram, data model, APIs) -> wait for approval
+- Step 3: Propose tasks.md (waves, dependencies, <4h per task) -> wait for approval
+
+Mode 2: Reverse Spec (Existing/Legacy Code Documentation)
+- Mine code using codebase-memory: search_graph and trace_path
+- Step 1: Draft requirements.md (As-Built) capturing existing business logic in EARS notation
+- Step 2: Draft design.md (As-Built) with real Mermaid diagrams, DB schemas, and API contracts
+- Step 3: Draft tasks.md focusing on gaps (missing unit/E2E tests, technical debt, error handling)
+
+Mode 3: Hybrid Spec (Extending Existing Modules)
+- Map existing foundation (tables, endpoints, enums) as dependencies
+- Run Forward Spec (Mode 1) for the new sub-feature only
 
 ## For bugs (skill bug-fix-protocol, Phases 1 and 3, read-only)
 - Investigate: ADO WI + repro steps + linked WIs + resolved Bugs in the same module
@@ -385,6 +397,7 @@ tools:
   - manage_task
 commandExecutionPolicy: eager
 skills:
+  - skills/spec-generation-protocol
   - skills/bug-fix-protocol
   - skills/qa-corte-workflow
   - skills/azure-devops-workflow

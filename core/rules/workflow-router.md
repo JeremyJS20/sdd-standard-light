@@ -55,12 +55,10 @@ Do not edit: opencode.json, .sdd-config.json, .sdd-credentials.json, VERSION, .a
 - If changes needed: request explicit human approval
 - If agent tries to edit them: STOP and notify
 
-### Gate 9: Bug != Feature
-Bug and Feature have different flows. DO NOT mix.
-- **Feature**: receive requirement → bring from ADO → create design.md → create tasks.md → implement task by task
-- **Bug**: receive bug directly → analyze → fix → test → PR (no design or tasks)
+- **Feature**: follow `spec-generation-protocol.md` (Forward, Reverse, or Hybrid): `requirements.md` → `design.md` → `tasks.md` → implement task by task
+- **Bug**: receive bug directly → analyze → fix → test → PR (no design or tasks, follow `bug-fix-protocol.md`)
 - NEVER create design.md for a bug
-- NEVER skip design.md for a feature
+- NEVER skip design.md or tasks.md for a feature
 
 ### Gate 10: Requirements come from ADO or Functional Package
 The analyst does NOT touch the repo. Only creates WIs in ADO and Functional Packages in docs/requirements/functional-packages/.
