@@ -110,6 +110,15 @@ Rules:
 5. **Read project files** — only what memory and the graph could not answer
 6. **context7** — external library docs
 
+## File Mutations & UTF-8 Clean Encoding Directive (MANDATORY)
+- **Zero-Mojibake Rule**: All files containing non-ASCII characters (Spanish accents: á, é, í, ó, ú, ñ, or currency/mathematical symbols) MUST retain 100% clean UTF-8 encoding.
+- **Forbidden Windows PowerShell Redirection**:
+  - NEVER use PowerShell stream redirection operators (`>` or `>>`) to generate or edit text files on Windows (PowerShell 5.1 defaults to UTF-16LE / ANSI, producing immediate mojibake corruption).
+  - NEVER use `Set-Content` without explicit `-Encoding utf8`.
+- **Approved File Mutation Tooling**:
+  - ALWAYS prefer native IDE editing tools (`replace_file_content`, `write_to_file`).
+  - For command-line edits or scripting, use Node.js (`fs.readFileSync(file, 'utf8')`, `fs.writeFileSync(file, content, 'utf8')`).
+
 ## Tool discipline
 - NEVER skip a mandatory checkpoint
 - NEVER use grep for code discovery before codebase-memory
@@ -117,3 +126,4 @@ Rules:
 - NEVER call azure-devops without an AB# or a sprint/corte query purpose
 - NEVER call context7 if you already know the answer
 - NEVER call playwright if there is no UI to test
+- NEVER use non-UTF-8 stream redirections that corrupt text files with mojibake

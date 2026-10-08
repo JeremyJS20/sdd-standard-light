@@ -159,6 +159,8 @@ trigger: always_on
 11. Anti-Monolith — decompose macro-features into modular sub-features
 12. Anti-Superficiality — documentation must have exhaustive engineering depth (no 'etc.', no placeholders, full DDL/APIs/formulas)
 13. Approval Stamp — Upstream artifact must be stamped with approver name and date before generating downstream artifact
+14. Anti-Cascading Approval — 1:1 approval per artifact, approval for requirements NEVER implies approval for design or tasks
+15. UTF-8 Clean Encoding — all file mutations must use UTF-8, no raw PowerShell stream redirection
 
 ## MCP checkpoints (MANDATORY — full detail in sdd-tool-protocol)
 - Session start: server-memory read → report "🧠 Memoria: …"; codebase-memory index check → report "🗺️ Grafo: …"

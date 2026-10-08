@@ -20,6 +20,8 @@
 | 11 | Dump a multi-workflow Macro-Feature into a single monolithic spec without decomposition | BLOCK |
 | 12 | Generate superficial, brief, or placeholder-ridden documentation without exhaustive technical detail | BLOCK |
 | 13 | Create downstream artifact (design.md / tasks.md / code) while upstream artifact header still contains "[pending]" | BLOCK |
+| 14 | Cascade a single approval across multiple artifacts, or stamp approval on an artifact not explicitly named by the user | BLOCK |
+| 15 | Corrupt file encoding or introduce mojibake via non-UTF-8 tools (e.g. raw PowerShell redirection) | BLOCK |
 
 ## What happens when a block is triggered
 1. STOP immediately — do not proceed
@@ -41,6 +43,8 @@
 - Gate 11: Decompose the macro-feature into modular sub-features under `specs/{module}/{sub-feature}/`. Propose the breakdown first and tackle one sub-feature at a time.
 - Gate 12: Redraft documentation with exhaustive technical depth: full DDL schemas with column types, nullability, constraints; complete API contracts with real request/response JSONs and HTTP error codes; exact mathematical formulas; and rendered Mermaid diagrams. Ban 'etc.', 'TODO', or summarized placeholders.
 - Gate 13: Stamp the upstream artifact's header with the formal human approval (`> ✅ Approved by: [Approver Name / Role] · [YYYY-MM-DD]`) BEFORE creating or proposing the downstream artifact. Never leave `[pending]` in an approved artifact.
+- Gate 14: Obtain explicit, independent approval for EACH artifact individually. Approval for requirements.md NEVER authorizes design.md. Approval for design.md NEVER authorizes tasks.md. Colloquial words ("dale", "continúa", "ok") apply ONLY to the single artifact currently under review.
+- Gate 15: Restore clean UTF-8 encoding and use safe tools (replace_file_content, write_to_file, or Node.js UTF-8) for all file mutations. Ban raw PowerShell stream redirection.
 
 ## What NEVER to do
 - DO NOT bypass gates even if the user says "just do it"
