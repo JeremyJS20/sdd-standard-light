@@ -368,8 +368,8 @@ if [ -d "$SCRIPT_DIR/core/agents" ]; then
   echo "   OK Agents: $AGENTS_COUNT archivos"
 fi
 
-# Copiar templates
-mkdir -p specs/_templates
+# Copiar templates y crear directorios de docs
+mkdir -p specs/_templates docs/architecture docs/modules
 if [ -d "$SCRIPT_DIR/core/templates" ]; then
   cp $COPY_FLAG "$SCRIPT_DIR/core/templates/"*.md specs/_templates/ 2>/dev/null || true
   TEMPLATES_COUNT=$(ls -1 "$SCRIPT_DIR/core/templates/"*.md 2>/dev/null | wc -l)

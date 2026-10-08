@@ -13,13 +13,25 @@
 | specs/{AB#id}/tasks.md | repo | Developer |
 | .sdd-config.json | repo | sdd-init.sh |
 | Application code (`app/`, `apps/`, `src/`) | subfolder | Scaffolding Wave 0 / Developer |
+| Global Architecture docs (`docs/architecture/`) | repo | Architect / Agent |
+| Module Living Docs (`docs/modules/{module}.md`) | repo | Agent (consolidated from specs) |
 | .env.example | repo | sdd-init.sh |
 | .gitignore | repo | sdd-init.sh |
+
+### Living System Documentation (`docs/`)
+While `specs/` stores granular, sprint-based work deltas (`requirements.md`, `design.md`, `tasks.md`), the `docs/` directory maintains the permanent, living documentation of the product:
+1. `docs/architecture/`:
+   - `system-overview.md`: High-level system architecture, technology stack, deployment pattern.
+   - `database-erd.md`: Master ERD consolidating all domain entities across all modules.
+2. `docs/modules/{module}.md`:
+   - Single consolidated source of truth for each business domain (e.g. `docs/modules/payroll.md`, `docs/modules/workforce.md`).
+   - Contains: domain scope, capabilities matrix, module-specific ERD, master API catalog, and regulatory business rules.
+   - Consolidated incrementally from approved specs.
 
 ### Application Subfolder Isolation
 In Greenfield projects and clean setups, the application source code is maintained inside a dedicated subfolder (e.g. `app/`, `apps/{name}/`, or `{app-name}/`).
 This ensures:
-1. Complete separation between SDD governance files (`.agents/`, `.opencode/`, `specs/`, `.sdd-*`) and application runtime/build artifacts (`node_modules/`, `.next/`, `dist/`, `target/`, `.venv/`).
+1. Complete separation between SDD governance files (`.agents/`, `.opencode/`, `specs/`, `docs/`, `.sdd-*`) and application runtime/build artifacts (`node_modules/`, `.next/`, `dist/`, `target/`, `.venv/`).
 2. Clean package manifests (`package.json`, `go.mod`, etc.) without polluting root tooling.
 3. Clean monorepo scalability (e.g. multiple services or apps under `apps/` or `packages/`).
 

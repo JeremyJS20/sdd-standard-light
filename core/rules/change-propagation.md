@@ -32,6 +32,17 @@ Add at the top of the affected file:
 - When tasks.md is modified → warn that implementation may need updates
 - Propagation is automatic — the agent detects changes and marks downstream
 
+## Upstream Consolidation: Living Documentation (`docs/`)
+When a feature or sub-feature specification is completed and approved:
+1. **Module Living Document (`docs/modules/{module}.md`)**:
+   - Update the Capabilities Matrix with the new sub-feature and its state.
+   - Merge new database entities into the Module ERD.
+   - Add new endpoints to the Master API Catalog.
+   - Record newly established domain constants and business formulas.
+2. **System Architecture (`docs/architecture/`)**:
+   - If cross-cutting infrastructure, global services, or root models changed, update `docs/architecture/system-overview.md` and `docs/architecture/database-erd.md`.
+3. **Trigger**: Automatic upon approval of `tasks.md` or PR merge.
+
 ## What NEVER to do
 - DO NOT silently change an upstream artifact without marking downstream
 - DO NOT revert a decision without documenting the reason
