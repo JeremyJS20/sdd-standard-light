@@ -19,6 +19,7 @@
 | 10 | Advance to next spec phase (design.md / tasks.md) without explicit human approval | BLOCK |
 | 11 | Dump a multi-workflow Macro-Feature into a single monolithic spec without decomposition | BLOCK |
 | 12 | Generate superficial, brief, or placeholder-ridden documentation without exhaustive technical detail | BLOCK |
+| 13 | Create downstream artifact (design.md / tasks.md / code) while upstream artifact header still contains "[pending]" | BLOCK |
 
 ## What happens when a block is triggered
 1. STOP immediately — do not proceed
@@ -39,6 +40,7 @@
 - Gate 10: Wait for explicit approval from the user ("Approved", "Aprobado", "Proceed"). NEVER advance if the user made a question, complaint, or continuation without explicit approval.
 - Gate 11: Decompose the macro-feature into modular sub-features under `specs/{module}/{sub-feature}/`. Propose the breakdown first and tackle one sub-feature at a time.
 - Gate 12: Redraft documentation with exhaustive technical depth: full DDL schemas with column types, nullability, constraints; complete API contracts with real request/response JSONs and HTTP error codes; exact mathematical formulas; and rendered Mermaid diagrams. Ban 'etc.', 'TODO', or summarized placeholders.
+- Gate 13: Stamp the upstream artifact's header with the formal human approval (`> ✅ Approved by: [Approver Name / Role] · [YYYY-MM-DD]`) BEFORE creating or proposing the downstream artifact. Never leave `[pending]` in an approved artifact.
 
 ## What NEVER to do
 - DO NOT bypass gates even if the user says "just do it"

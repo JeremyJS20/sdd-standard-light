@@ -158,6 +158,7 @@ trigger: always_on
 10. Requirements from Functional Package (primary) or ADO (fallback)
 11. Anti-Monolith — decompose macro-features into modular sub-features
 12. Anti-Superficiality — documentation must have exhaustive engineering depth (no 'etc.', no placeholders, full DDL/APIs/formulas)
+13. Approval Stamp — Upstream artifact must be stamped with approver name and date before generating downstream artifact
 
 ## MCP checkpoints (MANDATORY — full detail in sdd-tool-protocol)
 - Session start: server-memory read → report "🧠 Memoria: …"; codebase-memory index check → report "🗺️ Grafo: …"
