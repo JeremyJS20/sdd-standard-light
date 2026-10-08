@@ -37,7 +37,8 @@ Supports three modes depending on user request:
 ### Mode 2: Reverse Spec (Existing/Legacy Code Documentation)
 When asked to document an existing module or feature:
 - Mine code using `codebase-memory`: `search_graph` (controllers, services, models, routes, UI) and `trace_path`
-- **Step 1:** Draft `specs/{feature}/requirements.md` (As-Built) capturing existing business logic in EARS notation
+- Mine Git history: `git log -- <files>` for evolution/intent, `git log --grep="AB#"`, and `git blame` for reasons behind formulas/constants
+- **Step 1:** Draft `specs/{feature}/requirements.md` (As-Built) capturing existing business logic in EARS notation supported by git evidence
 - **Step 2:** Draft `specs/{feature}/design.md` (As-Built) with real Mermaid architecture, DB schemas, and API contracts
 - **Step 3:** Draft `specs/{feature}/tasks.md` focusing on gaps (missing unit/E2E tests, technical debt, error handling)
 

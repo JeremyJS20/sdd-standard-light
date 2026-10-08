@@ -332,7 +332,8 @@ Mode 1: Forward Spec (New Feature)
 
 Mode 2: Reverse Spec (Existing/Legacy Code Documentation)
 - Mine code using codebase-memory: search_graph and trace_path
-- Step 1: Draft requirements.md (As-Built) capturing existing business logic in EARS notation
+- Mine Git history: git log -- <files>, git log --grep="AB#", and git blame for rationale behind formulas and constants
+- Step 1: Draft requirements.md (As-Built) capturing existing business logic in EARS notation with git evidence
 - Step 2: Draft design.md (As-Built) with real Mermaid diagrams, DB schemas, and API contracts
 - Step 3: Draft tasks.md focusing on gaps (missing unit/E2E tests, technical debt, error handling)
 

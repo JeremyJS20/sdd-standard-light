@@ -61,28 +61,39 @@ When creating a new feature from scratch or from an ADO User Story:
 
 When a module was built without SDD specs and needs documentation for compliance, audit, QA, or future maintenance:
 
-### Step 1: Code Mining with `codebase-memory` (MANDATORY)
-1. DO NOT guess what the code does. Use MCP tools:
+### Step 1: Code Mining with codebase-memory & Git Archeology (MANDATORY)
+
+Code tells you **WHAT** is there; Git history tells you **WHY** it was built that way.
+
+1. **MCP Graph Discovery**:
    - `search_graph(name_pattern=...)`: locate models, controllers, services, routes, UI components.
    - `get_code_snippet`: read signatures, validations, schemas, SQL queries, DTOs.
    - `trace_path`: trace the execution path from entrypoint (route/button) to DB.
-2. Identify existing DB tables, columns, relations, and enums.
-3. Identify existing business rules (calculations, taxes, discounts, role permissions, validations).
+   - Identify existing DB tables, columns, relations, and enums.
+
+2. **Git Archeology & Business Intent Mining**:
+   - `git log --oneline -25 -- <feature_files>`: extract the feature's evolution and all related commit messages (e.g. `feat(payroll): connect cycles...`, `refactor: clean redirects`).
+   - `git log --all --grep="AB#" --oneline`: find all linked User Stories and Bugs that shaped this feature.
+   - `git blame -L <start>,<end> <file>` on key business logic: uncover why magic numbers, legal formulas, or regulatory rates were set (e.g., discovering `salario / 23.83 / 8` comes from MT Labor Code, or TSS `2.87% / 3.04%` from Law 87-01).
+   - `git log -S "<keyword>"`: trace when and why specific business rules or validations were added or modified.
+
+3. Combine both sources to reconstruct the original functional intent, edge case fixes, and unwritten domain rules.
 
 ### Step 2: Generate `requirements.md` (As-Built)
 1. Use `requirements-template.md`.
-2. Set header: `> 📋 As-Built Specification — Reverse-engineered from codebase [commit hash]`.
+2. Set header: `> 📋 As-Built Specification — Reverse-engineered from codebase and git history [commit hash]`.
 3. Express existing business logic in formal EARS notation:
    - What the system *already does* today.
+   - Domain rules justified by git commit history and PR references.
    - Known limitations or unhandled edge cases observed in code.
-4. Document existing acceptance criteria verified in the code.
-5. PROPOSE to human for validation: "This is what the code currently does. Does this match expectations?"
+4. Document existing acceptance criteria verified in the code and past bug fixes.
+5. PROPOSE to human for validation: "This is what the code and git history show the feature currently does. Does this match expectations?"
 
 ### Step 3: Generate `design.md` (As-Built)
 1. Use `design-template.md`.
 2. Document real architecture, component hierarchy, and database schemas as they exist.
 3. Mermaid diagrams of the real component tree and database entity-relationships.
-4. Document all existing endpoints, methods, and payload structures.
+4. Document all existing endpoints, methods, payload structures, and external integrations discovered via graph and git.
 
 ### Step 4: Generate `tasks.md` (Gaps & Hardening)
 1. The tasks for an existing module are NOT "build from scratch". They are:
