@@ -7,7 +7,7 @@
 | Artifact | Location | Who creates |
 |----------|----------|-------------|
 | IDE rules and agents (`.opencode/`, `.agents/`, `.kiro/`, `.claude/`) | repo | sdd-init.sh |
-| specs/_templates/ (3 files) | repo | sdd-init.sh |
+| specs/_templates/ (core spec & architecture templates) | repo | sdd-init.sh |
 | specs/{AB#id}/requirements.md | repo | Agent (from ADO) |
 | specs/{AB#id}/design.md | repo | Developer |
 | specs/{AB#id}/tasks.md | repo | Developer |
@@ -21,8 +21,8 @@
 ### Living System Documentation (`docs/`)
 While `specs/` stores granular, sprint-based work deltas (`requirements.md`, `design.md`, `tasks.md`), the `docs/` directory maintains the permanent, living documentation of the product:
 1. `docs/architecture/`:
-   - `system-overview.md`: High-level system architecture, technology stack, deployment pattern.
-   - `database-erd.md`: Master ERD consolidating all domain entities across all modules.
+   - `system-overview.md`: High-level system architecture, C4 container model, environment topology, security, and observability.
+   - `database-architecture.md`: Master ERD, multi-tenancy RLS, indexing strategies, and zero-downtime migration protocols.
 2. `docs/modules/{module}.md`:
    - Single consolidated source of truth for each business domain (e.g. `docs/modules/payroll.md`, `docs/modules/workforce.md`).
    - Contains: domain scope, capabilities matrix, module-specific ERD, master API catalog, and regulatory business rules.

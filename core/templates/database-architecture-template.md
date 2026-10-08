@@ -4,7 +4,7 @@
 > 🔄 Last Updated: [YYYY-MM-DD] · Status: [Active / Production]
 > 👤 Data Authority: [Lead DBA / Backend Architect]
 > 🐘 Engine: PostgreSQL 16 (AWS RDS) · Multi-Tenant: [Logical / Row-Level Partitioning]
-> ⚠️ **MANDATO DE CALIDAD (Hard Gate 12)**: Este documento DEBE ser redactado con máxima profundidad técnica y detalle exhaustivo. Queda estrictamente prohibido omitir columnas, truncar esquemas con 'etc.', o colocar tablas sin sus tipos de datos SQL exactos (`NUMERIC`, `UUID`, etc.), constraints (`NOT NULL`, `CHECK`, `UNIQUE`), claves foráneas y políticas de indexing.
+> ⚠️ **MANDATORY QUALITY GATE (Hard Gate 12)**: This document MUST be authored with deep technical rigor and exhaustive engineering detail. Omitting columns, truncating schemas with 'etc.', or defining tables without exact PostgreSQL SQL data types (`NUMERIC`, `UUID`, etc.), constraints (`NOT NULL`, `CHECK`, `UNIQUE`), foreign keys, and indexing policies is strictly prohibited.
 
 ---
 
@@ -13,24 +13,24 @@
 ### 1.1 Server & Instance Configuration
 - **Engine & Version**: PostgreSQL 16.x (AWS RDS Multi-AZ Deployment)
 - **Primary Encoding**: `UTF-8` · Collation: `en_US.UTF-8`
-- **Timezone**: `UTC` (Todas las fechas y marcas de tiempo se almacenan estrictamente en UTC)
+- **Timezone**: `UTC` (All dates, timestamps, and intervals are strictly stored in UTC)
 - **Active Extensions**:
-  - `uuid-ossp` / `pgcrypto`: Generación de claves primarias UUIDv4 nativas (`gen_random_uuid()`).
-  - `unaccent`: Búsquedas fonéticas y normalización de texto sin tildes en nombres de colaboradores.
-  - `pg_trgm`: Búsquedas difusas de texto (fuzzy search) y autocompletado en selectores de empleados.
+  - `uuid-ossp` / `pgcrypto`: Native UUIDv4 primary key generation (`gen_random_uuid()`).
+  - `unaccent`: Accent-insensitive text normalization for employee and legal searches.
+  - `pg_trgm`: Fuzzy trigram matching and autocomplete for employee and search selectors.
 
 ### 1.2 Connection Pooling & Client Strategy
-- **Conexión**: Administrada mediante Pool de conexiones seguro en `src/infrastructure/database/aws.ts`.
-- **Límites del Pool**:
-  - `max_connections`: [e.g. 20 conexiones simultáneas por instancia de aplicación]
+- **Connection Management**: Managed via an enterprise connection pool in `src/infrastructure/database/aws.ts`.
+- **Pool Sizing Limits**:
+  - `max_connections`: [e.g. 20 concurrent connections per application runtime instance]
   - `idleTimeoutMillis`: 30,000 ms
   - `connectionTimeoutMillis`: 5,000 ms
-- **SSL**: Conexión obligatoria con SSL habilitado (`ssl: { rejectUnauthorized: true }`).
+- **SSL / TLS**: Mandatory encrypted connection with verified certificates (`ssl: { rejectUnauthorized: true }`).
 
 ### 1.3 Database Schemas
-- **`huro`**: Esquema principal de negocio (empleados, contratos, nómina, novedades, bancos).
-- **`audit`**: Esquema inmutable de eventos de auditoría y traza de cambios.
-- **`public`**: Restringido para extensiones y funciones del sistema.
+- **`huro`**: Primary domain business schema (employees, contracts, payroll, adjustments, banks).
+- **`audit`**: Immutable change tracking and compliance event audit log schema.
+- **`public`**: Restricted to engine extensions, system functions, and schema migrations metadata.
 
 ---
 
@@ -38,19 +38,19 @@
 
 ```mermaid
 erDiagram
-    tenants ||--o{ users : "pertenece"
-    tenants ||--o{ employees : "emplea"
-    tenants ||--o{ payroll_cycles : "gestiona"
-    tenants ||--o{ contractors : "contrata"
+    tenants ||--o{ users : "belongs to"
+    tenants ||--o{ employees : "employs"
+    tenants ||--o{ payroll_cycles : "manages"
+    tenants ||--o{ contractors : "contracts"
 
-    employees ||--o| contracts : "tiene salario base"
-    employees ||--o| employee_payrolls : "datos bancarios"
-    employees ||--o{ payroll_adjustments : "registra novedades"
-    employees ||--o{ payroll_cycle_items : "recibe liquidacion"
+    employees ||--o| contracts : "has base compensation"
+    employees ||--o| employee_payrolls : "banking disbursement data"
+    employees ||--o{ payroll_adjustments : "records adjustments"
+    employees ||--o{ payroll_cycle_items : "receives settlement"
 
-    banks ||--o{ employee_payrolls : "banco de la cuenta"
+    banks ||--o{ employee_payrolls : "account institution"
 
-    payroll_cycles ||--o{ payroll_cycle_items : "contiene liquidaciones"
+    payroll_cycles ||--o{ payroll_cycle_items : "contains itemized settlements"
 
     tenants {
         uuid id PK
@@ -159,15 +159,15 @@ erDiagram
 ## 3. Multi-Tenancy Architecture & Partitioning
 
 ### 3.1 Logical Multi-Tenancy Pattern
-- **Columna `tenant_id`**: Presente como clave foránea obligatoria (`NOT NULL`) en **todas** las tablas de negocio.
-- **Claves Únicas Compuestas**: Cualquier unicidad de negocio (ej. código de colaborador, código de ciclo de nómina) debe incluir obligatoriamente el tenant:
+- **Mandatory `tenant_id`**: Present as a non-nullable foreign key (`NOT NULL`) in **all** business entity tables.
+- **Composite Unique Constraints**: Any business uniqueness requirement (e.g. employee code, payroll cycle code) MUST include the tenant scope:
   ```sql
   ALTER TABLE huro.payroll_cycles 
   ADD CONSTRAINT uq_payroll_cycle_code_tenant UNIQUE (tenant_id, code);
   ```
 
 ### 3.2 Row-Level Security (RLS) Policy
-Como salvaguarda contra errores en consultas de backend, se implementa RLS en el motor:
+Enforced directly in the PostgreSQL engine as a fail-safe against application-level omission:
 ```sql
 ALTER TABLE huro.payroll_cycles ENABLE ROW LEVEL SECURITY;
 
@@ -178,36 +178,36 @@ CREATE POLICY tenant_isolation_policy ON huro.payroll_cycles
 
 ---
 
-## 4. Tipado de Datos, Precisión y Convenciones
+## 4. Data Typing, Precision & Conventions
 
-| Dominio | Tipo de Dato PostgreSQL | Regla Técnica & Justificación |
-|---------|-------------------------|-------------------------------|
-| **Identificadores (PK)** | `UUID` (`DEFAULT gen_random_uuid()`) | Evita colisiones de enteros predecibles en APIs, facilita importaciones/fusiones y previene enumeración maliciosa. |
-| **Monedas y Salarios** | `NUMERIC(12,2)` | **ESTRICTAMENTE PROHIBIDO `FLOAT` O `DOUBLE`**. Garantiza precisión exacta a dos decimales sin errores de redondeo de punto flotante. |
-| **Tasas y Porcentajes** | `NUMERIC(6,4)` | Permite tasas exactas como AFP `0.0287` (2.87%) y SFS `0.0304` (3.04%). |
-| **Marcas de Tiempo** | `TIMESTAMPTZ` | Timestamp con zona horaria almacenado en UTC. Siempre incluye `created_at` y `updated_at`. |
-| **Fechas de Calendario** | `DATE` | Fechas puras de período contable sin componente de hora (ej. `start_date`, `end_date`). |
-| **Estados del Ciclo** | `VARCHAR(50)` con `CHECK` | Convención de nombres en mayúsculas o minúsculas controladas por constraint (ej. `CHECK (status IN ('draft', 'in_review', 'calculated', 'approved', 'closed'))`). |
-| **Borrados Lógicos** | `deleted_at TIMESTAMPTZ NULL` | Soft delete aplicado en entidades maestras para trazabilidad y auditoría legal. |
+| Domain | PostgreSQL Data Type | Technical Rule & Justification |
+|--------|----------------------|--------------------------------|
+| **Identifiers (PK)** | `UUID` (`DEFAULT gen_random_uuid()`) | Prevents sequential ID guessing in public APIs, eliminates cross-tenant collision risks, and simplifies distributed migrations. |
+| **Currencies & Compensation** | `NUMERIC(12,2)` | **STRICTLY PROHIBITED: `FLOAT` OR `DOUBLE`**. Guarantees exact decimal precision and eliminates floating-point rounding errors. |
+| **Rates & Percentages** | `NUMERIC(6,4)` | Supports exact statutory rates such as AFP `0.0287` (2.87%) and SFS `0.0304` (3.04%). |
+| **Timestamps** | `TIMESTAMPTZ` | Timestamp with timezone stored in UTC. Always includes `created_at` and `updated_at`. |
+| **Calendar Dates** | `DATE` | Pure dates for accounting periods without time components (e.g. `start_date`, `end_date`). |
+| **Lifecycle States** | `VARCHAR(50)` with `CHECK` | Lowercase snake_case convention with strict database-level constraints (e.g. `CHECK (status IN ('draft', 'in_review', 'calculated', 'approved', 'closed'))`). |
+| **Soft Deletions** | `deleted_at TIMESTAMPTZ NULL` | Soft delete applied on root domain entities to preserve legal auditability. |
 
 ---
 
-## 5. Convenciones de Indexación & Optimización de Consultas
+## 5. Indexing Conventions & Query Optimization
 
-### 5.1 Reglas Obligatorias de Índices
-1. **Todas las claves foráneas (FK)** deben tener un índice B-tree para evitar Sequential Scans en operaciones de `JOIN` o `CASCADE`.
-2. **Índices compuestos por Tenant**: Las consultas operan filtrando por tenant y ordenando por fecha:
+### 5.1 Mandatory Indexing Rules
+1. **Foreign Keys (FK)**: All foreign key columns MUST have a dedicated B-tree index to avoid Sequential Scans during `JOIN` or `CASCADE` operations.
+2. **Composite Tenant-First Indexes**: Queries filter by tenant and order by date/status:
    ```sql
    CREATE INDEX idx_payroll_cycles_tenant_created 
    ON huro.payroll_cycles (tenant_id, created_at DESC);
    ```
-3. **Índices parciales para Soft Delete**: Excluyen registros eliminados para mantener el índice ligero y ultrarrápido:
+3. **Partial Indexes for Soft Delete**: Exclude deleted records to keep indexes lightweight:
    ```sql
    CREATE INDEX idx_active_employees 
    ON huro.employees (tenant_id, status) 
    WHERE deleted_at IS NULL;
    ```
-4. **Índices de Búsqueda Trigrama (GIN)** para campos de texto dinámico:
+4. **Trigram Search Indexes (GIN)**: For fuzzy text matching on names and codes:
    ```sql
    CREATE INDEX idx_employee_name_trgm 
    ON huro.employees USING gin ((first_name || ' ' || last_name) gin_trgm_ops);
@@ -215,29 +215,29 @@ CREATE POLICY tenant_isolation_policy ON huro.payroll_cycles
 
 ---
 
-## 6. Estrategia de Migraciones Zero-Downtime (Expand & Contract)
+## 6. Zero-Downtime Migration Strategy (Expand & Contract)
 
-Toda modificación de base de datos en producción sigue el patrón **Expand-and-Contract**:
+All schema changes in production MUST follow the **Expand-and-Contract** pattern:
 
 ```mermaid
 flowchart LR
-    Phase1["Paso 1: EXPAND<br/>Agregar columna nullable o nueva tabla"] --> Phase2["Paso 2: WRITE BOTH<br/>Backend escribe en ambos campos"]
-    Phase2 --> Phase3["Paso 3: BACKFILL<br/>Migrar datos históricos en background"]
-    Phase3 --> Phase4["Paso 4: CONTRACT<br/>Retirar campo antiguo en siguiente release"]
+    Phase1["Step 1: EXPAND<br/>Add nullable column or new table"] --> Phase2["Step 2: WRITE BOTH<br/>Application writes to old and new fields"]
+    Phase2 --> Phase3["Step 3: BACKFILL<br/>Migrate historical records in background"]
+    Phase3 --> Phase4["Step 4: CONTRACT<br/>Drop old column in subsequent release"]
 ```
 
-### Reglas Innegociables en Migraciones
-1. **Prohibido renombrar o eliminar columnas en el mismo despliegue** que introduce el código que deja de usarlas.
-2. **Agregar columnas con valor por defecto** debe realizarse sin bloqueo de tabla (aprovechar optimización de metadata de PostgreSQL 11+).
-3. **Creación de índices concurrentes**: En tablas con más de 100,000 registros, siempre usar `CREATE INDEX CONCURRENTLY` para evitar lockeos de escritura.
+### Non-Negotiable Migration Rules
+1. **Never rename or drop columns** in the same deployment that introduces code changes abandoning them.
+2. **Adding columns with default values** must be non-blocking (utilize PostgreSQL 11+ metadata default optimization).
+3. **Concurrent Indexing**: In tables exceeding 100,000 records, always use `CREATE INDEX CONCURRENTLY` to avoid write locks.
 
 ---
 
-## 7. Alta Disponibilidad, Backups & Disaster Recovery
+## 7. High Availability, Backups & Disaster Recovery
 
-- **Arquitectura Multi-AZ**: Réplica sincrónica en zona de disponibilidad secundaria de AWS con failover automático transparente (< 60 segundos).
-- **Point-in-Time Recovery (PITR)**: Registros WAL continuos en S3 que permiten restaurar la base de datos a cualquier segundo de los últimos 35 días.
-- **Métricas de Resiliencia (RPO / RTO)**:
-  - **RPO (Recovery Point Objective)**: < 5 minutos de pérdida máxima potencial de datos.
-  - **RTO (Recovery Time Objective)**: < 30 minutos para recuperación completa de servicio ante catástrofe de infraestructura.
-- **Snapshots Automatizados**: Respaldo snapshot diario automático a las 03:00 AM UTC retenido durante 30 días.
+- **Multi-AZ Architecture**: Synchronous replication across secondary AWS Availability Zones with automated failover (< 60 seconds).
+- **Point-in-Time Recovery (PITR)**: Continuous WAL stream archiving to S3 enabling database restoration to any second within the last 35 days.
+- **Resilience Targets (RPO / RTO)**:
+  - **RPO (Recovery Point Objective)**: < 5 minutes potential maximum data loss.
+  - **RTO (Recovery Time Objective)**: < 30 minutes for complete service restoration following catastrophic infrastructure loss.
+- **Automated Snapshots**: Daily automated RDS snapshot at 03:00 UTC retained for 30 days.

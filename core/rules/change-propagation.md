@@ -40,7 +40,7 @@ When a feature or sub-feature specification is completed and approved:
    - Add new endpoints to the Master API Catalog.
    - Record newly established domain constants and business formulas.
 2. **System Architecture (`docs/architecture/`)**:
-   - If cross-cutting infrastructure, global services, or root models changed, update `docs/architecture/system-overview.md` and `docs/architecture/database-erd.md`.
+   - If cross-cutting infrastructure, global services, or root models changed, update `docs/architecture/system-overview.md` and `docs/architecture/database-architecture.md`.
 3. **Trigger**: Automatic upon approval of `tasks.md` or PR merge.
 
 ## What NEVER to do
