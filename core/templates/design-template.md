@@ -109,6 +109,39 @@ graph TD
 - **Errors**: [error codes and meanings]
 - **Maps to**: REQ-[NNN]
 
+## UI / UX & Frontend Design
+<!-- CONDITIONAL: Mandatory for any feature involving user interfaces or frontend views. Omit only for pure backend/API-only tasks. -->
+<!-- Enforce Hard Gate 17: Anti-Generic UI Mandate. All styles must map to the master DESIGN.md tokens. -->
+
+### Screen Wireframe & Spatial Layout
+<!-- Detail the layout structure, grid, and navigation hierarchy. Render with ASCII, Mermaid, or Markdown table. -->
+- **Route / Path**: `/[module]/[screen]`
+- **Layout Shell**: [Console Shell with 240px➔64px sidebar / Public split-screen layout / Full-width workspace]
+- **Spatial Separation**: [Tonal background shifts (canvas-base vs surface-card vs surface-inset) under the No-Line rule]
+
+### Design Tokens & Visual Hierarchy
+- **Canvas / Surface**: [e.g. Canvas `#F9F9FF`, Card `#FFFFFF`, Inset `#F2F3FF`]
+- **Typographic Roles**:
+  - Headings: [Display font, size, weight, tracking]
+  - UI / Forms: [Body font, size, weight]
+  - Codes / Monetary Values: [Monospace font, alignment (right-aligned in tables)]
+- **Status Badges & Pills**:
+  - [State 1, e.g. Active]: `bg-emerald-50 text-emerald-700 border-emerald-200` with pulse indicator
+  - [State 2, e.g. Pending]: `bg-amber-50 text-amber-700 border-amber-200`
+  - [State 3, e.g. Closed / Danger]: `bg-rose-50 text-rose-700 border-rose-200`
+
+### Component States & Micro-Interactions
+| Component | Default State | Hover State | Active / Pressed State | Disabled / Gated State |
+|-----------|---------------|-------------|------------------------|------------------------|
+| Primary Button | Brand gradient, shadow-sm | Tonal gradient shift, shadow-md | `scale-[0.98]` micro-compression | 50% opacity, `cursor-not-allowed` |
+| Nav Link | Slate muted text | +2px translation, background tint | 4px left vertical indicator bar | Lock icon, tooltip |
+| Table Row | Clean / alternating surface | `hover:bg-slate-50/80` | Checkbox selected ring | Muted text |
+
+### Empty, Loading & Error States
+- **Loading State**: [Skeleton shimmer with exact dimensions matching content layout]
+- **Empty State**: [Custom illustration / icon, informative title, primary CTA button]
+- **Error State**: [Inline alert banner or toast with RFC 7807 problem details and retry action]
+
 ## Architecture Updates
 <!-- ALWAYS. List global docs this feature changes. -->
 <!-- Generate from actual impact analysis. If no global changes, write "No global architecture changes required." -->
