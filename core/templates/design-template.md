@@ -118,6 +118,7 @@ graph TD
 <!-- Detail the layout structure, grid, and navigation hierarchy. Render with ASCII, Mermaid, or Markdown table. -->
 - **Route / Path**: `/[module]/[screen]`
 - **Layout Shell**: [Console Shell with 240px➔64px sidebar / Public split-screen layout / Full-width workspace]
+- **Shared Layout Shell Component**: [e.g. app/(auth)/layout.tsx / AuthShell or ConsoleLayout. Mandatory for multi-page flows. All sub-routes inherit this shell without per-page layout divergence or duplicate headers/footers.]
 - **Spatial Separation**: [Tonal background shifts (canvas-base vs surface-card vs surface-inset) under the No-Line rule]
 
 ### Design Tokens & Visual Hierarchy

@@ -27,6 +27,7 @@ Any frontend implementation displaying the following hallmarks of lazy AI genera
 5. **The "Border-Obsession" Anti-Pattern**: Drawing 1px dark borders around cards, headers, footers, and inserting `<hr />` dividing lines between sections. Spatial hierarchy must follow the **No-Line Rule** (tonal background shifts and diffuse shadows).
 6. **The "OS Dark Mode Desync" Anti-Pattern**: Blindly applying uncoordinated Tailwind `dark:` classes that follow OS preferences, resulting in black inputs on white cards. Dark mode MUST be controlled by an explicit `.dark` class toggle with synchronized tokens.
 7. **The "Flat Button" Anti-Pattern**: Using generic solid blue/black buttons without the brand's specified gradient, hover micro-interactions, or active state scaling (`active:scale-[0.98]`).
+8. **The "Layout Drift / Fragmented Flow" Anti-Pattern**: Implementing a tailored layout (such as the split-screen shell) for the entry page (`/login`), but reverting sibling pages in the same flow (`/recuperar-contrasena`, `/restablecer-contrasena`, `/verificar-2fa`) to generic centered cards or injecting redundant global headers/footers. Sibling routes in any flow MUST inherit a single shared layout shell (`(auth)/layout.tsx` or `<AuthShell>`).
 
 ---
 
@@ -120,20 +121,42 @@ flowchart TD
 - **Center**: Quick-search spotlight trigger (`Cmd + K` / `Ctrl + K`).
 - **Right**: Role simulator dropdown (for previewing role experiences live) and notification bell with count badge.
 
-### 5.3 Authentication Shell (Split-Screen 50/50 Layout)
-Instead of a generic centered card floating in an empty void, authentication screens MUST use an architectural split-screen layout:
+### 5.3 Unified Authentication Shell (Split-Screen 50/50 Layout)
+Instead of individual pages inventing their own layout or centering cards in a blank void, all public authentication and access routes MUST share a single, unified layout shell (e.g. `app/(auth)/layout.tsx` or a reusable `<AuthShell>` component).
+
+Leaf pages (`/login`, `/recuperar-contrasena`, `/restablecer-contrasena`, `/verificar-2fa`) MUST ONLY render the inner form workspace (`children`) into the right panel. They MUST NOT declare their own outer wrappers, headers, footers, or background canvases.
+
+#### Shell Architecture:
 - **Left Panel (Brand Authority, 50% Desktop Viewport)**:
-  - Background: Solid deep brand color (e.g. Navy `#002B49`), full height (100vh).
+  - Container: Fixed full height (`100vh`), sticky/non-scrolling, solid deep brand color (e.g. Navy `#002B49`), flex column justify-between p-12.
+  - Brand Mark: Primary institutional logo or SVG brandmark (white/light monochrome).
   - Typography: Product brand title in Display font (Manrope 800, 32px), single concise mission statement (Inter 15px, text-slate-300), and institutional attribution footer in Monospace font (JetBrains Mono 11px, text-slate-400).
   - Anti-Slop Directive: NO decorative buzzword badges, NO abstract vector illustrations, and NO random gradients.
 - **Right Panel (Form Workspace, 50% Desktop Viewport)**:
-  - Background: `canvas-base` (`#F9F9FF`), full height, centered flex column.
+  - Container: `canvas-base` (`#F9F9FF`), full height (`100vh`), scrollable if needed, centered flex column (`max-w-md mx-auto w-full px-8 py-12`).
   - Structure: Left-aligned clean form layout (NOT trapped in a small bordered card box).
-  - Headings: "Iniciar sesión" in Manrope 26px bold, subtitle in Inter 14px text-secondary.
-  - Form Fields: 11px uppercase overline labels (`tracking-wider text-slate-500 font-semibold`). Inputs: 48px height, 12px border radius, `surface-inset` background (`#F2F3FF`), borderless (ghost border only), focus marked by a crisp 2px accent ring (`ring-2 ring-blue-600`).
-  - Action Button: Full-width primary brand gradient button (48px height, font-medium, `active:scale-[0.98]`).
-  - Error Display: Single clean banner with soft rose background (`bg-rose-50 text-rose-800 border-rose-200 text-sm`), without redundant warning icons.
-- **Responsive Mobile View**: Left brand panel collapses to a compact branded top banner, and form takes 100% viewport width below.
+  - Standard Typography:
+    - Flow Heading: Manrope 26px bold (`text-slate-900`).
+    - Flow Subtitle: Inter 14px (`text-slate-500 mt-1 mb-8`).
+    - Form Field Labels: 11px uppercase overline (`tracking-wider text-slate-500 font-semibold mb-2 block`).
+  - Standard Input Controls:
+    - Dimensions: Height `48px`, border radius `12px` (`rounded-xl`).
+    - Surface: `surface-inset` background (`#F2F3FF`), ghost border (`border border-slate-200/60`).
+    - Focus State: Crisp 2px accent ring (`focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none`).
+  - Action Buttons:
+    - Primary Submit: Full-width brand gradient button (height `48px`, font-medium, rounded-xl, `active:scale-[0.98] transition-all`).
+    - Secondary Nav / Back Link: Clean text button or subtle link (`text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors`).
+  - Notifications & Error Display: Single clean banner with soft rose background (`bg-rose-50 text-rose-800 border border-rose-200 text-sm rounded-lg p-3.5`), without redundant warning icons.
+- **Responsive Mobile View**:
+  - The left brand panel collapses into a compact top branded banner (height ~80px, displaying logo and product name), and the form workspace takes 100% viewport width below.
+
+#### Flow Route Uniformity Matrix:
+| Route | View Heading | Primary Action | Secondary Navigation | Replaces Form In-Place? |
+|---|---|---|---|---|
+| `/login` | Iniciar sesión | Entrar al Sistema | ¿Olvidaste tu contraseña? | No |
+| `/recuperar-contrasena` | Recuperar acceso | Enviar enlace de restablecimiento | ← Volver al inicio de sesión | Sí (Paso 2 confirmación neutra) |
+| `/restablecer-contrasena` | Restablecer contraseña | Guardar nueva contraseña | ← Volver al inicio de sesión | No (Redirige a `/login` al éxito) |
+| `/verificar-2fa` | Verificación de identidad | Confirmar código | Probar otro método / Cancelar | No |
 
 ---
 
