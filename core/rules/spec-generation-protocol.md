@@ -296,6 +296,29 @@ Every user-facing frontend application or module MUST adhere to an explicit, ent
 
 ---
 
+## Atomic Task Execution Cadence & Definition of Done Protocol (Hard Gate 18)
+
+Every task in `tasks.md` is an immutable engineering contract. The agent MUST follow an atomic, sequential task closing cadence rather than deferring checkboxes to batch updates at the end of waves:
+
+### 1. The Atomic Task Execution Loop (Per Task, Non-Negotiable)
+For each task in `tasks.md` (e.g. Task 0.1, Task 1.1):
+1. **Step 1 — Propose Task Execution (Hard Gate 1)**: Present the specific task objectives and commands to the human and await explicit approval.
+2. **Step 2 — Implement Code**: Write, edit, or scaffold the specific files designated by the task.
+3. **Step 3 — Automated Verification (DoD)**: Execute the exact test, build, lint, or validation command specified in the task (e.g. `pnpm build`, `pnpm test:unit`, `prisma validate`, `tsc --noEmit`).
+4. **Step 4 — Atomic Checkoff in `tasks.md`**: IMMEDIATELY update `tasks.md`:
+   - Change all verified acceptance criteria checkboxes from `[ ]` to `[x]`.
+   - Record the task status as `COMPLETED`.
+   - Record the completion timestamp or commit reference.
+5. **Step 5 — Atomic Git Commit**: Commit the implementation code AND the updated `tasks.md` together (or commit code followed immediately by the governance checkoff commit): `feat(scope): implement Task X.X ...`.
+6. **Step 6 — Propose Next Task**: ONLY after Steps 3, 4, and 5 are fully satisfied and persisted in Git may the agent propose Task X+1 to the human.
+
+### 2. Strict Prohibition: The "Batch Closing" Anti-Pattern
+- **Zero Tolerance for Batch Closing**: Deferring task checkoffs until the end of a wave, sprint cut, or session is STRICTLY PROHIBITED.
+- **Traceability Continuity**: Leaving completed code unrecorded in `tasks.md` causes context amnesia during session restarts or model compaction.
+- **Precondition for Task X+1**: An agent SHALL NEVER propose or begin Task X+1 if Task X has uncompleted `[ ]` criteria in `tasks.md`.
+
+---
+
 ## What the Agent NEVER Does
 - NEVER skips `requirements.md` to start coding immediately because "it seems simple".
 - NEVER generates `design.md` before `requirements.md` is explicitly approved.
@@ -311,3 +334,4 @@ Every user-facing frontend application or module MUST adhere to an explicit, ent
 - NEVER uses non-UTF-8 stream redirections or commands that introduce mojibake or corrupt character encodings (Hard Gate 15).
 - NEVER updates `docs/modules/{module}.md` without synchronizing all 3 master diagrams (State Machine, Flowchart, ERD) (Hard Gate 16).
 - NEVER implements frontend UI components or screens without referencing a defined Design System (`DESIGN.md`) or produces generic, unstyled Bootstrap/shadcn boilerplate (Hard Gate 17).
+- NEVER proposes or begins the next task (Task X+1) while the current task in `tasks.md` remains unchecked `[ ]` or uncommitted (Hard Gate 18 — Anti-Batch Closing).
