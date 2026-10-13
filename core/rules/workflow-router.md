@@ -131,6 +131,10 @@ The agent detects what phase of work it is in:
    - **Stack & Architecture Decision**:
      - Based on the elicited domain, propose the optimal stack (Frontend, Backend, Database, Cloud/Infra) and folder conventions.
      - Present pros/cons and justifications.
+     - **UI / UX Design System Definition (MANDATORY for frontend projects)**:
+       - Propose the design persona, theme narrative (e.g. Institutional Authority), dual-mode tokens, typographic triad, and console layout shell.
+       - Author master `DESIGN.md` in repository root (or `docs/architecture/design-system.md`) based on `specs/_templates/design-system-template.md`.
+       - Await explicit human approval of the visual identity before scaffolding Wave 0.
      - On human approval, record as a `Decision` entity in `server-memory`.
 2. **Scope Classification & Modular Decomposition (MANDATORY GATE 11)**:
    - **Single Feature vs. Multi-Workflow System Check**: Evaluate whether the greenfield project is a single-purpose utility/tool or a multi-workflow business system (e.g. Fixed Assets, Payroll, Invoicing, ERP, E-commerce, Inventory).
@@ -146,6 +150,7 @@ The agent detects what phase of work it is in:
    - **Application Subfolder Isolation**: To avoid mixing SDD orchestration files (`.agents/`, `.opencode/`, `specs/`, `docs/`, `.sdd-memory/`, `.sdd-*`, `sdd-init.sh`) with application source code and runtime dependencies (`node_modules/`, `.venv/`, `dist/`), the application SHALL be scaffolded inside a dedicated application directory (e.g. `app/`, `apps/{name}/`, or `{app-name}/`).
    - Run framework setup commands targeting the subfolder (e.g. `npx create-next-app@latest app`, `npm create vite@latest app`, `nest new app`, `cargo new app`) with explicit human approval.
    - Configure `"app_dir": "app"` in `.sdd-config.json` so prechecks, linters, and start commands know where the application root resides.
+   - Wire design tokens into `app/tailwind.config.ts` and global CSS (`app/globals.css`) matching the approved `DESIGN.md` specification.
    - Preserve existing root `.gitignore`, SDD rules, and configuration during scaffolding.
 4. **Codebase Indexing**:
    - Immediately run `codebase-memory index_repository` on the newly scaffolded codebase.
