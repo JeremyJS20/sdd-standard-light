@@ -294,6 +294,16 @@ Every user-facing frontend application or module MUST adhere to an explicit, ent
 2. **Integration into Feature Designs**:
    - Every feature `design.md` that touches the frontend MUST include the `## UI / UX & Frontend Design` section mapping feature views directly to the tokens and layout patterns of `DESIGN.md`.
 
+3. **Prohibited AI Design Clichés & UI Slop (Instant Rejection)**:
+   Any frontend code displaying the following hallmarks of lazy AI generation SHALL be automatically rejected:
+   - **The "Fake Security / Buzzword Pill" Cliché**: Floating meaningless badges ("CONTROL PERIMETRAL SEGURO", "ENTERPRISE READY", "CUMPLIMIENTO DGII & NIIF") placed as screen ornaments.
+   - **The "Redundant Input Icon" Cliché**: Envelopes inside email fields, padlocks inside password fields, user icons inside name fields. Use clean typography and overline labels instead.
+   - **The "Demo Credentials Box" Cliché**: Callout boxes exposing test or admin passwords on the login screen.
+   - **The "Centered Floating Card in a Void" Cliché**: Centering a tiny white bordered card in the middle of a blank canvas for authentication. Authentication screens must use structured layouts like the **Split-Screen 50/50 Layout** (solid brand panel on left, clean form on right).
+   - **The "Border-Obsession" Anti-Pattern**: Drawing 1px dark borders around cards, headers, footers, and inserting `<hr />` dividing lines between sections. Spatial hierarchy must follow the **No-Line Rule** (tonal background shifts and diffuse shadows).
+   - **The "OS Dark Mode Desync" Anti-Pattern**: Uncoordinated Tailwind `dark:` classes keyed to OS settings, mixing black inputs on light cards. Dark mode MUST be controlled by an explicit `.dark` class toggle with synchronized tokens.
+   - **The "Flat Button" Anti-Pattern**: Generic solid blue/black buttons ignoring the brand's specified gradient, hover micro-interactions, or active state scaling (`active:scale-[0.98]`).
+
 ---
 
 ## Atomic Task Execution Cadence & Definition of Done Protocol (Hard Gate 18)

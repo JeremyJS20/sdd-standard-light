@@ -18,6 +18,16 @@
   - **No Cookie-Cutter Blue**: Avoid generic primary blues (`#0000FF` or default browser blue). Use deep corporate navies, slate-tinted indigos, or brand-specific refined gradients.
   - **Elevation Over Outlines**: Separate content using background tint contrast and diffuse shadows rather than dense black borders.
 
+### 1.2 Prohibited AI Design Clichés & UI Slop (Strictly Forbidden)
+Any frontend implementation displaying the following hallmarks of lazy AI generation SHALL be automatically rejected:
+1. **The "Fake Security / Buzzword Pill" Cliché**: Floating pill badges with meaningless text (e.g. "CONTROL PERIMETRAL SEGURO", "ENTERPRISE READY", "CUMPLIMIENTO DGII & NIIF") placed as screen ornaments. Badges must only convey actual dynamic system state.
+2. **The "Redundant Input Icon" Cliché**: Placing an envelope icon inside an email field, a lock icon inside a password field, or a user icon inside a name field. Input fields must rely on clean typography and overline labels, not decorative icon clutter.
+3. **The "Demo Credentials Box" Cliché**: Exposing test/admin credentials in a callout box on the login screen ("Credenciales de prueba: admin@..."). Real software never exhibits demo credentials on production interfaces.
+4. **The "Centered Floating Card in a Blank Void" Cliché**: Centering a tiny white bordered box in the middle of a massive blank canvas. Authentication screens must use purposeful structural layouts, such as the **Split-Screen 50/50 Layout** (solid brand panel on the left with typography and product narrative, clean form on the right).
+5. **The "Border-Obsession" Anti-Pattern**: Drawing 1px dark borders around cards, headers, footers, and inserting `<hr />` dividing lines between sections. Spatial hierarchy must follow the **No-Line Rule** (tonal background shifts and diffuse shadows).
+6. **The "OS Dark Mode Desync" Anti-Pattern**: Blindly applying uncoordinated Tailwind `dark:` classes that follow OS preferences, resulting in black inputs on white cards. Dark mode MUST be controlled by an explicit `.dark` class toggle with synchronized tokens.
+7. **The "Flat Button" Anti-Pattern**: Using generic solid blue/black buttons without the brand's specified gradient, hover micro-interactions, or active state scaling (`active:scale-[0.98]`).
+
 ---
 
 ## 2. Semantic Dual-Mode Token System
@@ -109,6 +119,21 @@ flowchart TD
 - **Left**: Dynamic breadcrumbs hierarchy (`Inter 12px`, e.g. `Inicio / Activos / Ficha Técnica`).
 - **Center**: Quick-search spotlight trigger (`Cmd + K` / `Ctrl + K`).
 - **Right**: Role simulator dropdown (for previewing role experiences live) and notification bell with count badge.
+
+### 5.3 Authentication Shell (Split-Screen 50/50 Layout)
+Instead of a generic centered card floating in an empty void, authentication screens MUST use an architectural split-screen layout:
+- **Left Panel (Brand Authority, 50% Desktop Viewport)**:
+  - Background: Solid deep brand color (e.g. Navy `#002B49`), full height (100vh).
+  - Typography: Product brand title in Display font (Manrope 800, 32px), single concise mission statement (Inter 15px, text-slate-300), and institutional attribution footer in Monospace font (JetBrains Mono 11px, text-slate-400).
+  - Anti-Slop Directive: NO decorative buzzword badges, NO abstract vector illustrations, and NO random gradients.
+- **Right Panel (Form Workspace, 50% Desktop Viewport)**:
+  - Background: `canvas-base` (`#F9F9FF`), full height, centered flex column.
+  - Structure: Left-aligned clean form layout (NOT trapped in a small bordered card box).
+  - Headings: "Iniciar sesión" in Manrope 26px bold, subtitle in Inter 14px text-secondary.
+  - Form Fields: 11px uppercase overline labels (`tracking-wider text-slate-500 font-semibold`). Inputs: 48px height, 12px border radius, `surface-inset` background (`#F2F3FF`), borderless (ghost border only), focus marked by a crisp 2px accent ring (`ring-2 ring-blue-600`).
+  - Action Button: Full-width primary brand gradient button (48px height, font-medium, `active:scale-[0.98]`).
+  - Error Display: Single clean banner with soft rose background (`bg-rose-50 text-rose-800 border-rose-200 text-sm`), without redundant warning icons.
+- **Responsive Mobile View**: Left brand panel collapses to a compact branded top banner, and form takes 100% viewport width below.
 
 ---
 

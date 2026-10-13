@@ -112,6 +112,7 @@ graph TD
 ## UI / UX & Frontend Design
 <!-- CONDITIONAL: Mandatory for any feature involving user interfaces or frontend views. Omit only for pure backend/API-only tasks. -->
 <!-- Enforce Hard Gate 17: Anti-Generic UI Mandate. All styles must map to the master DESIGN.md tokens. -->
+<!-- Anti-Slop Directive: Reject fake security pills, redundant input icons, demo credential callouts, floating card in a void, and dark mode desync. Follow DESIGN.md Section 1.2. -->
 
 ### Screen Wireframe & Spatial Layout
 <!-- Detail the layout structure, grid, and navigation hierarchy. Render with ASCII, Mermaid, or Markdown table. -->
