@@ -166,6 +166,7 @@ trigger: always_on
 16. Living Master Diagram Sync — Module master diagrams (State Machine, Flowchart, ERD) must evolve when sub-modules are integrated
 17. Anti-Generic UI — frontend applications must define a formal design system (DESIGN.md) with dual-mode tokens, No-Line layout, and typographic triad. Multi-page flows MUST use shared layout shells (e.g. (auth)/layout.tsx) to prevent layout drift. Generic unstyled Bootstrap/shadcn and AI UI clichés (fake security badges, redundant input icons, demo credential boxes, centered card in a void, border obsession, OS dark mode desync) are strictly forbidden.
 18. Atomic Task Closing — tasks must be verified, checked [x] in tasks.md, and committed immediately before proposing the next task. Batch closing at the end of waves is strictly forbidden.
+19. Surgical Release Cut Dependency Audit — before cherry-picking a QA corte list/PDF, scan origin/qa..origin/develop for coupled follow-up commits (hunk/function overlap, shared helpers, ADO links) and present them for approval. After cherry-picking, verify React Rules of Hooks ordering, SQL alias uniqueness, symbol imports, and build.
 
 ## MCP checkpoints (MANDATORY — full detail in sdd-tool-protocol)
 - Session start: server-memory read → report "🧠 Memoria: …"; codebase-memory index check → report "🗺️ Grafo: …"
@@ -188,7 +189,8 @@ Agent NEVER: Done, In Testing, Reopen, On Hold, Fix Later, Acceptance, Test Pass
 
 ## QA Corte and releases (activate skill qa-corte-workflow)
 - Detect active cortes at session start (PBIs with 'corte al' in title, state=Acceptance) — corte bugs first
-- NEVER merge develop→qa or qa→main directly — audit scope, use release/corte-DD-MM-YYYY or release/prod-DD-MM-YYYY
+- NEVER merge develop→qa or qa→main directly — audit scope + scan for coupled follow-up commits (Hard Gate 19), use release/corte-DD-MM-YYYY or release/prod-DD-MM-YYYY
+- Verify post-cherry-pick static integrity (React Hooks ordering, SQL aliases, imports, build) before PR/push
 - Post audit trail comment on ADO PBIs after each release. Tag vX.Y.Z after prod merge (with approval)
 
 ## Features & Specs (MANDATORY — activate skill spec-generation-protocol)

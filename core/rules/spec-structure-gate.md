@@ -25,6 +25,7 @@
 | 16 | Update docs/modules/{module}.md without synchronizing all 3 master diagrams (State Machine, Component Flow, ERD) or leaving corrupted table rows | BLOCK |
 | 17 | Implement UI components or frontend screens without a defined design system (DESIGN.md), producing generic boilerplate, or introducing AI UI slop clichés | BLOCK |
 | 18 | Propose or begin subsequent task while current task in tasks.md remains unchecked [ ] or uncommitted (batch closing anti-pattern) | BLOCK |
+| 19 | Cherry-pick a QA corte list/PDF without scanning `origin/qa..origin/develop` for coupled follow-up commits/dependencies or skipping post-cherry-pick static integrity checks (React Hooks ordering, SQL alias uniqueness, symbol imports) | BLOCK |
 
 ## What happens when a block is triggered
 1. STOP immediately — do not proceed
@@ -51,6 +52,7 @@
 - Gate 16: Fully synchronize all 3 master diagrams (Section 3.1 stateDiagram-v2, Section 3.2 flowchart, Section 4 erDiagram) in docs/modules/{module}.md to reflect certified sub-module changes (new sub-states, engines/resolvers, entities), and eliminate empty lines or malformed rows in Markdown tables.
 - Gate 17: Establish a formal Design System specification (`DESIGN.md` in repository root or `docs/architecture/design-system.md` using `design-system-template.md`). Define the aesthetic theme narrative, dual-mode color tokens (Canvas, Surface, Inset, Text, Ghost Borders), the "No-Line" spatial layout rule, the typographic triad (Display, Sans, Monospace for codes/numbers), and interactive component states before implementing frontend code. Mandate shared domain layout shells (e.g. `(auth)/layout.tsx`) for multi-page flows to prevent layout drift between sibling routes. Ban generic unstyled Bootstrap/shadcn boilerplate and strictly prohibit AI UI clichés (fake security badges, redundant input icons, demo credential boxes, centered card in a void, border obsession, OS dark mode desync).
 - Gate 18: Immediately complete the atomic Definition of Done (DoD) for the active task: execute automated verification/tests, mark all acceptance criteria `[x]` in `tasks.md`, set status to `COMPLETED`, and create the Git commit BEFORE proposing or starting the next task. Never defer task closing to the end of waves.
+- Gate 19: Before cherry-picking a QA corte list/PDF, run the 3-Layer Release Cut Dependency Audit: scan `origin/qa..origin/develop` for coupled follow-up fixes on the same files/functions, shared helper dependencies, and ADO work item relations. Present the `🔗 Coupled / Dependent Commits` block for human approval. After cherry-picking, verify React Rules of Hooks ordering (no hooks after early `return null`), SQL alias uniqueness, symbol imports, and build before creating the PR or pushing.
 
 ## What NEVER to do
 - DO NOT bypass gates even if the user says "just do it"

@@ -119,49 +119,71 @@ QA creates PBI (corte al DD-MM-YYYY) → Acceptance
 - Merging blindly can **leak unscoped work** into the QA environment
 - Bugs moved to the next corte by QA must NOT appear in the current corte's release
 
-### Audit before release (mandatory)
+### Audit before release (mandatory — Hard Gate 19)
 
-Before creating the release branch, the agent MUST:
+Before creating the release branch or cherry-picking any corte list/PDF, the agent MUST perform a **3-Layer Release Cut Dependency & Coupled Commit Audit**:
 
-1. **List all AB# in the corte** — get the PBIs with `corte al DD-MM-YYYY`, their child bugs, and HU/E2E
-2. **Audit develop commit-by-commit** — for each PR/commit in develop since the last qa merge:
-   - Is this AB# part of the corte? → **include**
-   - Is this AB# deferred to a future corte? → **exclude**
-   - Is this a feature not related to the corte? → **exclude**
+1. **List all AB# in the corte** — get the PBIs with `corte al DD-MM-YYYY`, their child bugs, HU/E2E, or the explicit list of AB# IDs from the QA Corte document/PDF.
+2. **Audit develop commit-by-commit** — for each PR/commit in `origin/qa..origin/develop`:
+   - Is this AB# already in `origin/qa`? → **mark as already in QA**
+   - Is this AB# explicitly part of the corte? → **include**
+   - Is this AB# deferred to a future corte or an unrelated feature? → **candidate for exclusion** (subject to Layer 3 Coupled Dependency Scan below)
    - Is there a fix branch NOT yet merged to develop? → **flag it** (it would be left out)
-3. **Present audit results** to human:
+3. **Coupled Commit & Regression Hotfix Scan (CRITICAL — prevents partial cherry-pick breakage)**:
+   In real-world development, an in-scope bug (`AB#A`) often modifies the same component, function, or SQL query as a subsequent commit (`AB#B`) in `develop`—such as a follow-up hotfix fixing a regression introduced by `AB#A` (e.g., conditional React Hook violation, null pointer, or broken SQL alias), or a shared utility created in an earlier commit. Cherry-picking `AB#A` strictly from a PDF without `AB#B` breaks `qa` even when `develop` works fine.
+   For every in-scope commit in `origin/qa..origin/develop`, the agent MUST scan all non-scoped commits in `origin/qa..origin/develop` across 2 discovery channels:
+   - **Channel A — Code & Hunk Overlap (`git log` + `codebase-memory`)**:
+     - Identify all files and functions modified by the in-scope corte commits.
+     - Find any non-scoped commits in `origin/qa..origin/develop` that:
+       1. Are subsequent `fix(...)` commits touching the **same functions, components, or line ranges** (hunk overlap) as an in-scope commit.
+       2. Create or modify **shared utilities, validation helpers, types, or DTOs** (`src/lib/validation/*`, `src/lib/utils/*`, etc.) imported by an in-scope commit (`trace_path`).
+   - **Channel B — Azure DevOps Work Item Relations (`wit_get_work_item`)**:
+     - Check if any in-scope AB# has ADO links (`Related`, `Successor`, `Predecessor`, `Child`, `Duplicate`) pointing to another Bug not listed in the corte PDF, or if a Bug was logged within 48 hours in the same module to fix a side effect of an in-scope AB#.
+4. **Present audit results** to human (grouped into 5 clear blocks):
    ```
    📋 Auditoría de release para corte al DD-MM-YYYY:
    
-   ✅ Incluidos (en scope del corte):
-   - AB#XXXX: [description] — PR #N
-   - AB#YYYY: [description] — PR #N
+   ✅ Incluidos (en scope del corte / PDF):
+   - AB#XXXX: [description] — commit <hash> / PR #N
+   - AB#YYYY: [description] — commit <hash> / PR #N
    
-   🚫 Excluidos (fuera de scope):
-   - AB#ZZZZ: [description] — razón: deferred to corte al DD-MM-YYYY+7
+   🔗 Bugs / Commits Acoplados Detectados (Recomendados por dependencia técnica):
+   - AB#ZZZZ (<hash>): [description]
+     ↳ Razón de acoplamiento: Modifica la misma función/componente ([File.tsx :: FunctionName]) que AB#XXXX y corrige una regresión directa / provee utilidad compartida requerida por AB#XXXX.
+   
+   ℹ️ Ya existentes en QA:
+   - AB#AAAA: [description] — ya presente en origin/qa
+   
+   🚫 Excluidos (fuera de scope y sin acoplamiento técnico):
+   - AB#BBBB: [description] — razón: deferred to corte al DD-MM-YYYY+7 (sin solapamiento con archivos del corte)
    - feat/integrations — razón: feature not in corte scope
    
-   ⚠️ Riesgo (fix no mergeado a develop):
+   ⚠️ Riesgo (fix del corte no mergeado a develop):
    - AB#WWWW: [description] — rama fix/AB#WWWW-... existe pero no está en develop
    ```
-4. **Wait for human approval** before proceeding
+5. **Wait for human approval** before proceeding — the human explicitly decides whether to include the `🔗 Coupled / Dependent Commits` (and can notify QA which extra bug IDs are included due to technical dependency).
 
 ### Creating the surgical release branch
 
 After audit approval:
 
 1. **Create branch from qa**: `git checkout -b release/corte-DD-MM-YYYY origin/qa`
-2. **Bring ONLY scoped commits** — two strategies depending on context:
-   - **Cherry-pick** individual merge commits if develop has mixed scoped/unscoped work
+2. **Bring ONLY scoped + human-approved coupled commits** — two strategies depending on context:
+   - **Cherry-pick** individual commits in chronological order (`git cherry-pick <hash>`) if develop has mixed scoped/unscoped work
    - **Merge specific fix branches** directly into the release branch if cleaner
 3. **Merge any fix branches not yet in develop** that ARE in corte scope
-4. **Verify every in-scope fix is in the branch**: for each AB# in scope → `git branch --contains <fix-commit>` must include `release/corte-DD-MM-YYYY`. Any missing → STOP and report
-5. **Collect deploy requirements** from each fix's evidence report (migrations, env vars, feature flags, seed data) → list them in the PR body so they are applied in the QA environment
-6. **Verify**: run tests, lint, ensure no regressions
-7. **PROPOSE**: "Release branch ready. I will create PR: `release/corte-DD-MM-YYYY` → `qa`" → wait for approval
+4. **Verify every in-scope fix is in the branch**: for each AB# in scope → `git branch --contains <fix-commit>` (or cherry-pick equivalence check) must confirm presence in `release/corte-DD-MM-YYYY`. Any missing → STOP and report
+5. **Post-Cherry-Pick Static & Structural Integrity Gate (MANDATORY before PR or push)**:
+   TypeScript compilation (`tsc` / `npm run build`) alone does NOT catch runtime hook violations or malformed SQL strings introduced by partial cherry-picks or conflict resolutions. On all files modified in the release branch (`git diff --name-only origin/qa..HEAD`), the agent MUST verify:
+   - **React Rules of Hooks Integrity**: Confirm no React component places `useEffect`, `useState`, `useMemo`, `useCallback`, `useRef`, or custom `use*` hooks *below* an early conditional return (`if (...) return null;`).
+   - **SQL Query & Alias Integrity**: Confirm no raw SQL query or query builder statement has duplicate table aliases (`JOIN ... AS x` repeated), duplicate column projections, or mismatched parameter placeholders after resolving cherry-pick conflicts.
+   - **Symbol & Import Resolution**: Confirm every helper, constant, or type imported by the cherry-picked code exists in the release branch.
+   - **Build, Lint & Tests**: Run `npm run build` (or project build command), linter, and relevant test suites.
+6. **Collect deploy requirements** from each fix's evidence report (migrations, env vars, feature flags, seed data) → list them in the PR body so they are applied in the QA environment
+7. **PROPOSE**: "Release branch verified (build + hooks/SQL/symbol integrity OK). I will create PR: `release/corte-DD-MM-YYYY` → `qa`" → wait for approval
 8. **Create PR**:
    - Title: `release: corte al DD-MM-YYYY (scope summary)`
-   - Body: list of AB# included, AB# excluded, rationale, and deploy requirements for QA
+   - Body: list of AB# included, coupled AB# included by technical dependency, AB# excluded, rationale, and deploy requirements for QA
    - Base: `qa`
    - Compare: `release/corte-DD-MM-YYYY`
 9. **Human merges PR** (agent never auto-merges — Gate 4)
@@ -174,11 +196,11 @@ After audit approval:
 - Notify human: "Release corte al DD-MM-YYYY deployed to QA. QA can begin validation."
 - **Post audit comment** on each PBI de Corte in ADO (see §Audit trail below)
 
-### Out-of-scope items (human-approved additions)
-Sometimes work outside the corte scope needs to go to QA (e.g., an unplanned feature, a fix from another sprint).
-- The agent flags it during audit as "not in corte scope"
+### Out-of-scope items & Coupled Technical Dependencies (human-approved additions)
+Sometimes work outside the initial corte PDF/list needs to go to QA—either because it is a **coupled technical dependency / regression hotfix** detected in Layer 3 of the audit, or an unplanned business addition:
+- The agent flags it during audit under `🔗 Coupled / Dependent Commits` (if technically coupled to an in-scope bug) or `🚫 Excluded` (if unrelated)
 - **If human explicitly approves inclusion** → include it in the release branch
-- Mark it in the audit as "included by human approval (out of corte scope)"
+- Mark it in the audit trail as "included by technical dependency on AB#XXXX (human-approved)" or "included by human approval (out of corte scope)"
 - NEVER include out-of-scope items without explicit human confirmation
 
 ### Audit trail (mandatory after release)
@@ -193,16 +215,22 @@ Fecha de Entrega: DD de [Month] de YYYY
 Rama de Release: release/corte-DD-MM-YYYY
 Pull Request a QA: [Repo#N](PR_URL)
 
-Bugs incluidos y resueltos:
+Bugs incluidos y resueltos (en alcance del corte):
 - AB#XXXX: [description]
 - AB#YYYY: [description]
-- AB#ZZZZ: [description]
+
+Bugs / Commits incluidos por dependencia técnica (aprobados para evitar regresión):
+- AB#ZZZZ: [description] (acoplado a AB#XXXX en [File/Component])
 
 Componentes adicionales (aprobados por humano):
 - [description] (out of corte scope, included by human approval)
 
 Exclusiones autorizadas (postergadas al corte DD-MM-YYYY):
 - AB#WWWW: [description]
+
+Verificación de Integridad Estática:
+- Build / Type-check: OK
+- React Rules of Hooks / SQL Aliases / Imports: OK
 
 Ambiente destino: QA ([environment_name])
 ```
